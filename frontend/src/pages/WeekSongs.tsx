@@ -1,0 +1,103 @@
+// WeekSongs.tsx
+import React, { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
+import { Sidebar } from "@/components/Layout/Sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Menu, Search, Sun, User, Plus, Edit } from "lucide-react";
+
+interface Song {
+  id: number;
+  title: string;
+  artist: string;
+  image_url: string;
+  key?: string;
+  tempo?: string;
+  time_signature?: string;
+}
+
+const WeekSongs = () => {
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [weekSongs, setWeekSongs] = useState<Song[]>(() => {
+    const stored = localStorage.getItem("weekSongs");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("weekSongs", JSON.stringify(weekSongs));
+  }, [weekSongs]);
+
+  const handleEditSongs = () => {
+    // Navigate to the dedicated selection page.
+    navigate("/select-week-songs");
+  };
+
+  return (
+    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+      <Sidebar />
+      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <div className="p-6">
+          {isMobile ? (
+            <div className="flex items-center justify-between mb-6">
+              <Menu className="h-6 w-6 text-gray-600" />
+              <div className="flex items-center space-x-4">
+                <Search className="h-6 w-6 text-gray-600" />
+                <Sun className="h-6 w-6 text-gray-600" />
+                <div onClick={handleEditSongs} className="cursor-pointer">
+                  <Edit className="h-6 w-6 text-gray-600" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
+              <button
+                onClick={handleEditSongs}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                <Plus className="h-5 w-5" />
+                {weekSongs.length === 0 ? "Select Songs" : "Edit Week Songs"}
+              </button>
+            </div>
+          )}
+
+          {weekSongs.length > 0 ? (
+            <div className="space-y-4">
+              {weekSongs.map((song) => (
+                <Card
+                  key={song.id}
+                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/songs/${song.id}`)}
+                >
+                  <div className="flex items-center">
+                    <img
+                      src={song.image_url || "https://via.placeholder.com/50"}
+                      alt={song.title}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="ml-4">
+                      <h3 className="font-semibold truncate">{song.title}</h3>
+                      <p className="text-gray-600 truncate">{song.artist}</p>
+                      <div className="text-sm text-gray-500 mt-1 flex gap-2">
+                        <span>Key: {song.key}</span>
+                        <span>Tempo: {song.tempo}</span>
+                        <span>Time: {song.time_signature}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">
+              No week songs selected. Click the button above to choose songs for this week.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WeekSongs;
