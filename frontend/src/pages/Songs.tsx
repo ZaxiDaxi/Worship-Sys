@@ -12,7 +12,6 @@ interface Song {
   id: number;
   title: string;
   artist: string;
-  image_url: string;
   key?: string;
   tempo?: string;
   time_signature?: string;
@@ -26,19 +25,14 @@ const Songs: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const defaultPageSize = 5;
-  
-  // Separate states: one for the current text in the input, and one for the submitted search query.
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  // When a search query exists, we bypass normal pagination by using a large page size.
   const pageSize = searchQuery ? 1000 : defaultPageSize;
 
-  // Fetch songs whenever currentPage or searchQuery changes.
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get("songs/", { 
@@ -59,7 +53,6 @@ const Songs: React.FC = () => {
       });
   }, [currentPage, searchQuery, pageSize]);
 
-  // Reset to page 1 whenever the search query changes.
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -102,7 +95,6 @@ const Songs: React.FC = () => {
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>
-            {/* Search form with modern design */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -137,14 +129,7 @@ const Songs: React.FC = () => {
                     onClick={() => handleSongClick(song.id)}
                   >
                     <div className="flex items-center space-x-4 min-w-0">
-                      <img
-                        src={song.image_url || "https://via.placeholder.com/50"}
-                        alt={song.title}
-                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://via.placeholder.com/50";
-                        }}
-                      />
+                      {/* Image removed */}
                       <div className="min-w-0">
                         <h3 className="font-semibold truncate">{song.title}</h3>
                         <p className="text-gray-600 truncate">{song.artist}</p>
@@ -180,7 +165,6 @@ const Songs: React.FC = () => {
                   </Card>
                 ))}
               </div>
-              {/* Only show pagination controls if no search query is active */}
               {!searchQuery && (
                 <div className="flex justify-center items-center mt-6 space-x-4">
                   <button

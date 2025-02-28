@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'transpose',
     'authentication',  # new app for authentication endpoints
     'guitartabs',  
+    'profiles',
 ]
 
 MIDDLEWARE = [

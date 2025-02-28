@@ -7,4 +7,5 @@ urlpatterns = [
     path('api/transpose/', include('transpose.urls')),  # New transposition API
     path('api/auth/', include('authentication.urls')),
     path('api/guitartabs/', include('guitartabs.urls')),
+    path('api/profiles/', include('profiles.urls')),
 ]

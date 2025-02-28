@@ -14,15 +14,12 @@ interface GuitarTab {
   artist: string;
   key?: string;
   tempo?: string;
-  image_url?: string;
   tab_data: any;
 }
 
 const GuitarTabs: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
-  // List & Search States
   const [guitarTabs, setGuitarTabs] = useState<GuitarTab[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -31,25 +28,21 @@ const GuitarTabs: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Delete Modal State
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  // Create Modal & Form States – only title, artist, key, tempo, image URL
+  // Removed image_url from new tab data since photos are no longer needed.
   const [newTabData, setNewTabData] = useState({
     title: "",
     artist: "",
     key: "",
-    tempo: "",
-    image_url: ""
+    tempo: ""
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Use a larger page size if searching
   const pageSize = searchQuery ? 1000 : defaultPageSize;
 
-  // Fetch guitar tabs whenever currentPage or searchQuery changes.
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get("guitartabs/", { 
@@ -71,7 +64,6 @@ const GuitarTabs: React.FC = () => {
       });
   }, [currentPage, searchQuery, pageSize]);
 
-  // Reset page on search change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -110,8 +102,6 @@ const GuitarTabs: React.FC = () => {
   const handleCreateTab = async () => {
     const payload = {
       ...newTabData,
-      imageUrl: newTabData.image_url, // if your backend expects "imageUrl"
-      // Default tab_data: a single note on string 1 with fret 1 at position 1.
       tab_data: {
         strings: [
           { string: 1, notes: [{ fret: 1, position: 1 }] },
@@ -128,13 +118,11 @@ const GuitarTabs: React.FC = () => {
       setGuitarTabs([...guitarTabs, response.data]);
       setToast({ message: "Guitar tab created successfully", type: "success" });
       setShowCreateModal(false);
-      // Reset form
       setNewTabData({
         title: "",
         artist: "",
         key: "",
-        tempo: "",
-        image_url: ""
+        tempo: ""
       });
     } catch (error) {
       console.error("Error creating guitar tab:", error);
@@ -184,14 +172,7 @@ const GuitarTabs: React.FC = () => {
                       onClick={() => handleTabClick(tab.id)}
                     >
                       <div className="flex items-center space-x-4 min-w-0">
-                        <img
-                          src={tab.image_url || "https://via.placeholder.com/50"}
-                          alt={tab.title}
-                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://via.placeholder.com/50";
-                          }}
-                        />
+                        {/* Removed image element */}
                         <div className="min-w-0">
                           <h3 className="font-semibold truncate">{tab.title}</h3>
                           <p className="text-gray-600 truncate">{tab.artist}</p>
@@ -227,7 +208,7 @@ const GuitarTabs: React.FC = () => {
                   </div>
                 )}
               </div>
-              {!searchQuery && totalPages > 1 && (
+              {(!searchQuery && totalPages > 1) && (
                 <div className="flex justify-center items-center mt-6 space-x-4">
                   <button
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
@@ -303,13 +284,6 @@ const GuitarTabs: React.FC = () => {
                 placeholder="Tempo"
                 value={newTabData.tempo}
                 onChange={(e) => setNewTabData({ ...newTabData, tempo: e.target.value })}
-                className="w-full px-4 py-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={newTabData.image_url}
-                onChange={(e) => setNewTabData({ ...newTabData, image_url: e.target.value })}
                 className="w-full px-4 py-2 border rounded"
               />
             </div>

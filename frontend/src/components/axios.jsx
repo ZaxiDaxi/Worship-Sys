@@ -1,7 +1,7 @@
+// axios.jsx
 import axios from 'axios';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
-
 
 const AxiosInstance = axios.create({
   baseURL: baseUrl,
@@ -15,7 +15,7 @@ const AxiosInstance = axios.create({
 // Request interceptor: attach the access token from localStorage (if available) to every request
 AxiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken'); // Ensure this key matches your storage
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -30,7 +30,7 @@ AxiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Check for 401 error and make sure we haven't retried this request already
+    // Check for 401 error and ensure we haven't retried this request already
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refreshToken');

@@ -1,4 +1,3 @@
-// SelectWeekSongs.tsx
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +9,7 @@ interface Song {
   id: number;
   title: string;
   artist: string;
-  image_url: string;
+  // Removed image_url property
   key?: string;
   tempo?: string;
   time_signature?: string;
@@ -26,10 +25,8 @@ const SelectWeekSongs = () => {
   });
 
   useEffect(() => {
-    // Fetch all songs from your Django backend (adjust page_size as needed)
     AxiosInstance.get("songs/", { params: { page: 1, page_size: 1000 } })
       .then((response) => {
-        // Assuming the response contains a "songs" array
         setAllSongs(response.data.songs);
       })
       .catch((err) => console.error("Error fetching songs:", err));
@@ -38,8 +35,6 @@ const SelectWeekSongs = () => {
   const handleSongSelect = (songId: number) => {
     const song = allSongs.find((s) => s.id === songId);
     if (!song) return;
-
-    // Toggle selection: if already selected, remove it; otherwise, add it if we have less than 4.
     if (selectedSongs.some((s) => s.id === songId)) {
       setSelectedSongs(selectedSongs.filter((s) => s.id !== songId));
     } else if (selectedSongs.length < 4) {
@@ -72,11 +67,7 @@ const SelectWeekSongs = () => {
                 onClick={() => handleSongSelect(song.id)}
               >
                 <div className="flex items-center space-x-4">
-                  <img
-                    src={song.image_url || "https://via.placeholder.com/50"}
-                    alt={song.title}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
+                  {/* Image element removed */}
                   <div>
                     <h3 className="font-semibold">{song.title}</h3>
                     <p className="text-gray-600">{song.artist}</p>

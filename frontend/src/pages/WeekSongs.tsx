@@ -1,4 +1,3 @@
-// WeekSongs.tsx
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +9,7 @@ interface Song {
   id: number;
   title: string;
   artist: string;
-  image_url: string;
+  // Removed image_url property
   key?: string;
   tempo?: string;
   time_signature?: string;
@@ -29,7 +28,6 @@ const WeekSongs = () => {
   }, [weekSongs]);
 
   const handleEditSongs = () => {
-    // Navigate to the dedicated selection page.
     navigate("/select-week-songs");
   };
 
@@ -71,11 +69,7 @@ const WeekSongs = () => {
                   onClick={() => navigate(`/songs/${song.id}`)}
                 >
                   <div className="flex items-center">
-                    <img
-                      src={song.image_url || "https://via.placeholder.com/50"}
-                      alt={song.title}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+                    {/* Image element removed */}
                     <div className="ml-4">
                       <h3 className="font-semibold truncate">{song.title}</h3>
                       <p className="text-gray-600 truncate">{song.artist}</p>

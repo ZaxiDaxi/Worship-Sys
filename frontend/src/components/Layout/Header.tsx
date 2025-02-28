@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios"; // Import your custom Axios instance
+import AxiosInstance from "@/components/axios";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -9,7 +9,6 @@ export const Header = () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
-        // Use relative URL since baseURL is already set in AxiosInstance
         await AxiosInstance.post("auth/logout/", { refresh: refreshToken });
       }
     } catch (err) {
