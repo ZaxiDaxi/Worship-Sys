@@ -31,15 +31,16 @@ interface Song {
   version: number;
 }
 
-// Constants for keys (as in your existing code)
 const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const MINOR_KEYS = MAJOR_KEYS.map(k => k + "m");
+const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
 
 function isMinorKey(k: string) {
   return k.endsWith("m");
 }
 
-// Existing component to display and edit chords on a lyric line
+/**
+ * ChordLine Component
+ */
 const ChordLine: React.FC<{
   line: LyricLine;
   editable: boolean;
@@ -56,16 +57,20 @@ const ChordLine: React.FC<{
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
     const positionShift = newText.length - text.length;
-    const updatedChords = chords.map(c => ({
+    const updatedChords = chords.map((c) => ({
       ...c,
-      position: Math.max(0, c.position + positionShift)
+      position: Math.max(0, c.position + positionShift),
     }));
     setText(newText);
     setChords(updatedChords);
     onChange?.(newText, updatedChords);
   };
 
-  const handleChordChange = (index: number, field: "chord" | "position", value: string | number) => {
+  const handleChordChange = (
+    index: number,
+    field: "chord" | "position",
+    value: string | number
+  ) => {
     const updated = [...chords];
     if (field === "chord") {
       updated[index].chord = value as string;
@@ -85,44 +90,62 @@ const ChordLine: React.FC<{
 
   return (
     <div className="space-y-2 relative">
-      <div className="relative w-full font-mono text-sm">
-        <div className="relative text-blue-600" style={{ minHeight: "20px" }}>
-          {chords.map((c, idx) => (
-            <span key={idx} className="absolute" style={{ left: `${c.position * 8}px`, top: "0px" }}>
-              {c.chord}
-            </span>
-          ))}
+      {/* 
+          Use w-full so the container fills the width.
+          Below md, text is sm; at md and above, text is lg.
+      */}
+      <div className="max-w-full overflow-x-auto">
+        <div className="relative w-full font-mono whitespace-pre text-sm md:text-lg">
+          <div className="relative" style={{ minHeight: "20px" }}>
+            {chords.map((c, idx) => (
+              <span
+                key={idx}
+                className="absolute text-blue-600 text-sm md:text-lg"
+                style={{ left: `${c.position * 8}px`, top: "0px" }}
+              >
+                {c.chord}
+              </span>
+            ))}
+          </div>
+          {editable ? (
+            <input
+              type="text"
+              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-lg"
+              value={text}
+              onChange={handleTextChange}
+              maxLength={46}
+            />
+          ) : (
+            <pre className="text-gray-800 font-mono w-full text-sm md:text-lg">
+              {text}
+            </pre>
+          )}
         </div>
-        {editable ? (
-          <input
-            type="text"
-            className="w-full text-gray-800 font-mono border border-gray-300 p-1 rounded"
-            value={text}
-            onChange={handleTextChange}
-          />
-        ) : (
-          <pre className="text-gray-800 font-mono">{text}</pre>
-        )}
       </div>
+
       {editable && (
         <div className="flex flex-col mt-2 space-y-2">
           {chords.map((c, idx) => (
             <div key={idx} className="flex gap-2">
               <input
                 type="text"
-                className="border p-1 rounded w-24"
+                className="border p-1 rounded w-24 text-sm md:text-lg"
                 value={c.chord}
-                onChange={e => handleChordChange(idx, "chord", e.target.value)}
+                onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
               />
               <input
                 type="number"
-                className="border p-1 rounded w-20"
+                className="border p-1 rounded w-20 text-sm md:text-lg"
                 value={c.position}
-                onChange={e => handleChordChange(idx, "position", e.target.value)}
+                onChange={(e) => handleChordChange(idx, "position", e.target.value)}
               />
             </div>
           ))}
-          <button type="button" onClick={addChord} className="bg-purple-500 text-white px-3 py-1 rounded">
+          <button
+            type="button"
+            onClick={addChord}
+            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-lg"
+          >
             + Add Chord
           </button>
         </div>
@@ -147,18 +170,19 @@ export default function SongDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(
+    null
+  );
 
   useEffect(() => {
-    // Fetch song details using AxiosInstance
     AxiosInstance.get(`songs/${id}/`)
-      .then(res => {
+      .then((res) => {
         setSong(res.data);
         setEditedTitle(res.data.title);
         setEditedLyrics(res.data.lyrics);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Error fetching song details:", err);
         setLoading(false);
         if (err.response && err.response.status === 401) {
@@ -257,88 +281,144 @@ export default function SongDetail() {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <div className="p-6">
-          <Card className="bg-white p-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
-              <div>
-                {editMode ? (
-                  <input
-                    type="text"
-                    className="text-3xl font-bold mb-2 border border-gray-300 p-2 rounded"
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                  />
-                ) : (
-                  <h1 className="text-3xl font-bold mb-2">{song.title}</h1>
-                )}
-                <p className="text-gray-600 text-xl mb-4">By {song.artist}</p>
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
-                    Key: {transposedKey || song.key}
+
+      {/*
+        Use responsive padding: minimal on screens below md, more on md+.
+      */}
+      <div className="flex-1 px-2 py-4 md:px-8 md:py-10 w-full">
+        <Card className="bg-white w-full max-w-4xl mx-auto my-4 md:my-8 p-4 md:p-10">
+          {/* Title and artist */}
+          <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
+            <div className="text-left">
+              {editMode ? (
+                <input
+                  type="text"
+                  className="border border-gray-300 p-2 rounded w-full text-2xl md:text-4xl font-bold mb-2"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                />
+              ) : (
+                <h1 className="text-2xl md:text-4xl font-bold mb-2">{song.title}</h1>
+              )}
+              <p className="text-gray-600 text-lg md:text-2xl mb-4">By {song.artist}</p>
+              <div className="flex flex-wrap gap-4 text-sm md:text-lg">
+                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                  Key: {transposedKey || song.key}
+                </span>
+                {song.tempo && (
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                    Tempo: {song.tempo}
                   </span>
-                  {song.tempo && (
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                      Tempo: {song.tempo}
-                    </span>
-                  )}
-                  {song.time_signature && (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-                      Time: {song.time_signature}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-2 flex items-center gap-2">
-                  <button onClick={() => transposeSong({ direction: "up" })} disabled={isTransposing} className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50" title="Transpose Up">
-                    <ArrowUpCircle className="h-6 w-6" />
-                  </button>
-                  <select value={targetKey} onChange={handleKeyChange} className="px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="">Select Key</option>
-                    {keysToDisplay.map(k => (
-                      <option key={k} value={k}>{k}</option>
-                    ))}
-                  </select>
-                  <button onClick={() => transposeSong({ direction: "down" })} disabled={isTransposing} className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50" title="Transpose Down">
-                    <ArrowDownCircle className="h-6 w-6" />
-                  </button>
-                </div>
-                {!editMode ? (
-                  <button onClick={() => setEditMode(true)} className="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded">
-                    Edit
-                  </button>
-                ) : (
-                  <button onClick={() => { setTransposedLyrics(null); setEditMode(false); }} className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded">
-                    Cancel Edit
-                  </button>
                 )}
-                <button onClick={saveNewVersion} disabled={isSaving} className="flex items-center gap-2 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50">
-                  <Save className="h-5 w-5" />
-                  {isSaving ? "Saving..." : "Save Version"}
-                </button>
-                <button onClick={handleDeleteSong} className="flex items-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
-                  <Trash2 className="h-5 w-5" />
-                  Delete
-                </button>
+                {song.time_signature && (
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                    Time: {song.time_signature}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="space-y-4 mt-8">
-              {displayLyrics.map((line, i) => (
-                <ChordLine key={i} line={line} editable={editMode} onChange={(text, chords) => handleLyricChange(i, text, chords)} />
-              ))}
-              {editMode && (
-                <button type="button" onClick={addLine} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add New Line
+
+            {/* Buttons */}
+            <div className="flex flex-wrap gap-4 text-sm md:text-lg">
+              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-2 flex items-center gap-2">
+                <button
+                  onClick={() => transposeSong({ direction: "up" })}
+                  disabled={isTransposing}
+                  className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
+                  title="Transpose Up"
+                >
+                  <ArrowUpCircle className="h-6 w-6" />
+                </button>
+                <select
+                  value={targetKey}
+                  onChange={handleKeyChange}
+                  className="px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="">Select Key</option>
+                  {keysToDisplay.map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => transposeSong({ direction: "down" })}
+                  disabled={isTransposing}
+                  className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
+                  title="Transpose Down"
+                >
+                  <ArrowDownCircle className="h-6 w-6" />
+                </button>
+              </div>
+              {!editMode ? (
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded"
+                >
+                  Edit
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setTransposedLyrics(null);
+                    setEditMode(false);
+                  }}
+                  className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                >
+                  Cancel Edit
                 </button>
               )}
+              <button
+                onClick={saveNewVersion}
+                disabled={isSaving}
+                className="flex items-center gap-2 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
+              >
+                <Save className="h-5 w-5" />
+                {isSaving ? "Saving..." : "Save Version"}
+              </button>
+              <button
+                onClick={handleDeleteSong}
+                className="flex items-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <Trash2 className="h-5 w-5" />
+                Delete
+              </button>
             </div>
-          </Card>
-        </div>
+          </div>
+
+          {/* Lyrics / Chords */}
+          <div className="space-y-4 mt-8">
+            {displayLyrics.map((line, i) => (
+              <ChordLine
+                key={i}
+                line={line}
+                editable={editMode}
+                onChange={(text, chords) => handleLyricChange(i, text, chords)}
+              />
+            ))}
+            {editMode && (
+              <button
+                type="button"
+                onClick={addLine}
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm md:text-lg"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Line
+              </button>
+            )}
+          </div>
+        </Card>
       </div>
+
+      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <ConfirmationModal
           isOpen={showDeleteConfirm}
@@ -348,6 +428,8 @@ export default function SongDetail() {
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
+
+      {/* Toast Notifications */}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );

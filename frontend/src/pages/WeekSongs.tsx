@@ -3,13 +3,12 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu, Search, Sun, User, Plus, Edit } from "lucide-react";
+import { Menu, Search, Sun, User, Plus, Edit, Trash2 } from "lucide-react";
 
 interface Song {
   id: number;
   title: string;
   artist: string;
-  // Removed image_url property
   key?: string;
   tempo?: string;
   time_signature?: string;
@@ -29,6 +28,11 @@ const WeekSongs = () => {
 
   const handleEditSongs = () => {
     navigate("/select-week-songs");
+  };
+
+  // New delete handler
+  const handleDelete = (songId: number) => {
+    setWeekSongs((prevSongs) => prevSongs.filter((song) => song.id !== songId));
   };
 
   return (
@@ -65,11 +69,10 @@ const WeekSongs = () => {
               {weekSongs.map((song) => (
                 <Card
                   key={song.id}
-                  className="p-4 hover:bg-gray-50 cursor-pointer"
+                  className="p-4 hover:bg-gray-50 cursor-pointer flex items-center"
                   onClick={() => navigate(`/songs/${song.id}`)}
                 >
-                  <div className="flex items-center">
-                    {/* Image element removed */}
+                  <div className="flex flex-grow items-center">
                     <div className="ml-4">
                       <h3 className="font-semibold truncate">{song.title}</h3>
                       <p className="text-gray-600 truncate">{song.artist}</p>
@@ -80,6 +83,16 @@ const WeekSongs = () => {
                       </div>
                     </div>
                   </div>
+                  {/* Trashbin icon for delete */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(song.id);
+                    }}
+                    className="ml-auto text-red-500 hover:text-red-700 p-2 rounded-lg"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
                 </Card>
               ))}
             </div>

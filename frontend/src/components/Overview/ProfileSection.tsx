@@ -33,9 +33,6 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
         alt="Profile"
         className="aspect-[1] object-contain w-[201px] max-w-full mb-4"
       />
-      <div>
-        <strong>Profile ID:</strong> {profile.id}
-      </div>
       <div className="mt-2">
         <strong>Username:</strong> {profile.user}
       </div>

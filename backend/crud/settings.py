@@ -20,13 +20,13 @@ INSTALLED_APPS = [
     # Third-party apps:
     'rest_framework',
     'corsheaders',
-    'rest_framework_simplejwt.token_blacklist',  # optional but recommended
+    'rest_framework_simplejwt.token_blacklist',
 
     # Your apps:
     'api',
     'transpose',
-    'authentication',  # new app for authentication endpoints
-    'guitartabs',  
+    'authentication',
+    'guitartabs',
     'profiles',
 ]
 
@@ -41,7 +41,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Configure CORS (adjust the origins as needed)
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',
 ]
@@ -92,8 +91,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # DRF and JWT Configuration:
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Use JWT for API calls
-        'rest_framework.authentication.SessionAuthentication',  # For the browsable API/admin
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT authentication for API calls
+        'rest_framework.authentication.SessionAuthentication',         # For the browsable API/admin
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -101,9 +100,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Shorter for security
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # Keeps user logged in for a month
+    'ROTATE_REFRESH_TOKENS': True,  # Issue new refresh token upon use
+    'BLACKLIST_AFTER_ROTATION': True,  # Prevents old tokens from being used
     'AUTH_HEADER_TYPES': ('Bearer',),
 }

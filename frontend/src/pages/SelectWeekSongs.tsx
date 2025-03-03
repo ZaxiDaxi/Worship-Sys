@@ -9,7 +9,6 @@ interface Song {
   id: number;
   title: string;
   artist: string;
-  // Removed image_url property
   key?: string;
   tempo?: string;
   time_signature?: string;
@@ -43,7 +42,7 @@ const SelectWeekSongs = () => {
   };
 
   const handleSave = () => {
-    if (selectedSongs.length === 4) {
+    if (selectedSongs.length >= 1 && selectedSongs.length <= 4) {
       localStorage.setItem("weekSongs", JSON.stringify(selectedSongs));
       navigate("/week-songs");
     }
@@ -54,7 +53,7 @@ const SelectWeekSongs = () => {
       <Sidebar />
       <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">Select 4 Songs for this Week</h2>
+          <h2 className="text-2xl font-bold mb-6">Select up to 4 Songs for this Week</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allSongs.map((song) => (
               <Card
@@ -67,7 +66,6 @@ const SelectWeekSongs = () => {
                 onClick={() => handleSongSelect(song.id)}
               >
                 <div className="flex items-center space-x-4">
-                  {/* Image element removed */}
                   <div>
                     <h3 className="font-semibold">{song.title}</h3>
                     <p className="text-gray-600">{song.artist}</p>
@@ -79,9 +77,9 @@ const SelectWeekSongs = () => {
           <button
             onClick={handleSave}
             className="mt-6 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-            disabled={selectedSongs.length !== 4}
+            disabled={selectedSongs.length < 1}
           >
-            {selectedSongs.length !== 4 ? "Select 4 Songs" : "Save Selection"}
+            {selectedSongs.length < 1 ? "Select at least 1 Song" : "Save Selection"}
           </button>
         </div>
       </div>

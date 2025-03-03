@@ -7,21 +7,17 @@ import { ProfileSection } from "@/components/Overview/ProfileSection";
 import { PersonalDetails } from "@/components/Overview/PersonalDetails";
 
 const Index = () => {
-  // State to hold the user profile
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  // Fetch profile once when component mounts
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // Use the same key ("accessToken") as in your axios instance
         const token = localStorage.getItem("accessToken");
         if (!token) {
           throw new Error("No access token. Please log in.");
         }
-        // Calling the correct endpoint (http://127.0.0.1:8000/api/profiles/me/)
         const response = await fetch("http://127.0.0.1:8000/api/profiles/me/", {
           headers: {
             "Content-Type": "application/json",
@@ -30,6 +26,7 @@ const Index = () => {
         });
 
         if (!response.ok) {
+          // If the token is expired or invalid, response.status will be 401
           throw new Error(`Request failed with status ${response.status}`);
         }
 
@@ -45,13 +42,38 @@ const Index = () => {
     fetchProfile();
   }, []);
 
-  // Handle loading / error states
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!profile) return <div>No profile data.</div>;
+  // Helper function to clear tokens and redirect
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login";
+  };
 
-  // Build your "stats" array from the user profile so that
-  // "team", "attendance", and "instrument" come from the backend
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Show error UI with a logout button
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <h2>Error: {error}</h2>
+        <p>Your token might be expired or invalid.</p>
+        <button
+          onClick={handleLogout}
+          style={{ padding: "0.5rem 1rem", marginTop: "1rem", cursor: "pointer" }}
+        >
+          Logout
+        </button>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return <div>No profile data.</div>;
+  }
+
+  // Stats array from your user profile
   const stats = [
     {
       icon: "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/46fe4f3371bc81444841a9f3bc506750f244c3d35e0047f38d56f60b7bd74850?placeholderIfAbsent=true&width=100 100w",
@@ -77,12 +99,10 @@ const Index = () => {
         <div className="w-[16%] max-md:w-full max-md:ml-0">
           <Sidebar />
         </div>
-
         {/* Main Content */}
         <div className="w-[84%] ml-5 max-md:w-full max-md:ml-0">
           <div className="w-full max-md:max-w-full">
             <Header />
-
             <main>
               {/* Overview Section */}
               <section className="shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] bg-white flex flex-col text-2xl text-black text-center ml-[26px] mr-[25px] mt-14 pl-[23px] pr-[67px] pt-[17px] pb-[81px] rounded-[15px]">
@@ -93,7 +113,6 @@ const Index = () => {
                   ))}
                 </div>
               </section>
-
               {/* Profile and Personal Details Section */}
               <section className="ml-[31px] mr-[25px] mt-[35px]">
                 <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
