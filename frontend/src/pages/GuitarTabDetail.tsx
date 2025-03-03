@@ -1,5 +1,3 @@
-// GuitarTabDetail.tsx
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
@@ -8,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { TabNotation } from "@/components/GuitarTab/TabNotation";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit, Save, Trash2, RotateCcw } from "lucide-react";
+import { Header } from "@/components/Layout/Header"; // Added global Header
 
 // Same interfaces as your TabNotation:
 interface NoteConnection {
@@ -395,6 +394,7 @@ export default function GuitarTabDetail() {
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
       <div className={`flex-1 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <Header /> {/* Global Header */}
         <div className="p-6">
           {/* BACK BUTTON */}
           <button

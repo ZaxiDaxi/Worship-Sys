@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu, Search, Sun, User, Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import { Header } from "@/components/Layout/Header"; // Added Header import
 
 interface Song {
   id: number;
@@ -30,7 +31,6 @@ const WeekSongs = () => {
     navigate("/select-week-songs");
   };
 
-  // New delete handler
   const handleDelete = (songId: number) => {
     setWeekSongs((prevSongs) => prevSongs.filter((song) => song.id !== songId));
   };
@@ -39,31 +39,19 @@ const WeekSongs = () => {
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
       <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <Header /> {/* Global Header */}
         <div className="p-6">
-          {isMobile ? (
-            <div className="flex items-center justify-between mb-6">
-              <Menu className="h-6 w-6 text-gray-600" />
-              <div className="flex items-center space-x-4">
-                <Search className="h-6 w-6 text-gray-600" />
-                <Sun className="h-6 w-6 text-gray-600" />
-                <div onClick={handleEditSongs} className="cursor-pointer">
-                  <Edit className="h-6 w-6 text-gray-600" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
-              <button
-                onClick={handleEditSongs}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <Plus className="h-5 w-5" />
-                {weekSongs.length === 0 ? "Select Songs" : "Edit Week Songs"}
-              </button>
-            </div>
-          )}
-
+          {/* Page-specific subheader with title and edit button */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
+            <button
+              onClick={handleEditSongs}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              {weekSongs.length === 0 ? "Select Songs" : "Edit Week Songs"}
+            </button>
+          </div>
           {weekSongs.length > 0 ? (
             <div className="space-y-4">
               {weekSongs.map((song) => (
@@ -83,7 +71,6 @@ const WeekSongs = () => {
                       </div>
                     </div>
                   </div>
-                  {/* Trashbin icon for delete */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

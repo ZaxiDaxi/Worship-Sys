@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ArrowUpCircle, ArrowDownCircle, Save, Trash2 } from "lucide-react";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
+import { Header } from "@/components/Layout/Header"; // Added global header
 
 // Interfaces for chords, lyrics, and song details
 interface Chord {
@@ -90,10 +91,6 @@ const ChordLine: React.FC<{
 
   return (
     <div className="space-y-2 relative">
-      {/* 
-          Use w-full so the container fills the width.
-          Below md, text is sm; at md and above, text is lg.
-      */}
       <div className="max-w-full overflow-x-auto">
         <div className="relative w-full font-mono whitespace-pre text-sm md:text-lg">
           <div className="relative" style={{ minHeight: "20px" }}>
@@ -122,7 +119,6 @@ const ChordLine: React.FC<{
           )}
         </div>
       </div>
-
       {editable && (
         <div className="flex flex-col mt-2 space-y-2">
           {chords.map((c, idx) => (
@@ -170,9 +166,7 @@ export default function SongDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(
-    null
-  );
+  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
   useEffect(() => {
     AxiosInstance.get(`songs/${id}/`)
@@ -281,11 +275,8 @@ export default function SongDetail() {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-
-      {/*
-        Use responsive padding: minimal on screens below md, more on md+.
-      */}
       <div className="flex-1 px-2 py-4 md:px-8 md:py-10 w-full">
+        <Header /> {/* Global Header */}
         <Card className="bg-white w-full max-w-4xl mx-auto my-4 md:my-8 p-4 md:p-10">
           {/* Title and artist */}
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">

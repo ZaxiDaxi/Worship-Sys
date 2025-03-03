@@ -3,6 +3,7 @@ import AxiosInstance from "@/components/axios"; // Use the custom Axios instance
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Toast from "@/components/ui/toast";
+import { Header } from "@/components/Layout/Header"; // Added global header
 
 interface Chord {
   chord: string;
@@ -158,6 +159,7 @@ export default function SongCreate() {
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
       <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <Header /> {/* Global Header */}
         <div className="p-6">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-md shadow">
             <h1 className="text-2xl font-bold mb-4">Create New Song</h1>

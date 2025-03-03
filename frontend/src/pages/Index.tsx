@@ -26,7 +26,6 @@ const Index = () => {
         });
 
         if (!response.ok) {
-          // If the token is expired or invalid, response.status will be 401
           throw new Error(`Request failed with status ${response.status}`);
         }
 
@@ -53,7 +52,6 @@ const Index = () => {
     return <div>Loading...</div>;
   }
 
-  // Show error UI with a logout button
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: "2rem" }}>
@@ -94,38 +92,37 @@ const Index = () => {
 
   return (
     <div className="border bg-[#EFF1F7] overflow-hidden border-solid border-black">
+      {/* Header moved outside the flex container for full-width display */}
+      <Header />
       <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
         {/* Sidebar */}
         <div className="w-[16%] max-md:w-full max-md:ml-0">
           <Sidebar />
         </div>
         {/* Main Content */}
-        <div className="w-[84%] ml-5 max-md:w-full max-md:ml-0">
-          <div className="w-full max-md:max-w-full">
-            <Header />
-            <main>
-              {/* Overview Section */}
-              <section className="shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] bg-white flex flex-col text-2xl text-black text-center ml-[26px] mr-[25px] mt-14 pl-[23px] pr-[67px] pt-[17px] pb-[81px] rounded-[15px]">
-                <h1 className="font-semibold">Welcome {profile.user || "User"}</h1>
-                <div className="flex w-full max-w-[1209px] items-stretch gap-[40px_91px] font-medium whitespace-nowrap flex-wrap mt-[45px] justify-center mx-auto">
-                  {stats.map((stat, index) => (
-                    <StatCard key={index} {...stat} />
-                  ))}
+        <div className="w-[84%] max-md:w-full">
+          <main>
+            {/* Overview Section */}
+            <section className="shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] bg-white flex flex-col text-2xl text-black text-center ml-[26px] mr-[25px] mt-14 pl-[23px] pr-[67px] pt-[17px] pb-[81px] rounded-[15px]">
+              <h1 className="font-semibold">Welcome {profile.user || "User"}</h1>
+              <div className="flex w-full max-w-[1209px] items-stretch gap-[40px_91px] font-medium whitespace-nowrap flex-wrap mt-[45px] justify-center mx-auto">
+                {stats.map((stat, index) => (
+                  <StatCard key={index} {...stat} />
+                ))}
+              </div>
+            </section>
+            {/* Profile and Personal Details Section */}
+            <section className="ml-[31px] mr-[25px] mt-[35px]">
+              <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
+                <div className="w-[41%] max-md:w-full max-md:ml-0">
+                  <ProfileSection profile={profile} />
                 </div>
-              </section>
-              {/* Profile and Personal Details Section */}
-              <section className="ml-[31px] mr-[25px] mt-[35px]">
-                <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
-                  <div className="w-[41%] max-md:w-full max-md:ml-0">
-                    <ProfileSection profile={profile} />
-                  </div>
-                  <div className="w-[59%] ml-5 max-md:w-full max-md:ml-0">
-                    <PersonalDetails profile={profile} />
-                  </div>
+                <div className="w-[59%] ml-5 max-md:w-full max-md:ml-0">
+                  <PersonalDetails profile={profile} />
                 </div>
-              </section>
-            </main>
-          </div>
+              </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>

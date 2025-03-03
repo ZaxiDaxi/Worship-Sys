@@ -7,6 +7,7 @@ import { Edit, Trash2, Search } from "lucide-react";
 import AxiosInstance from "@/components/axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
+import { Header } from "@/components/Layout/Header"; // Added Header import
 
 interface Song {
   id: number;
@@ -92,6 +93,7 @@ const Songs: React.FC = () => {
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
       <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <Header /> {/* Global Header */}
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>
@@ -129,7 +131,6 @@ const Songs: React.FC = () => {
                     onClick={() => handleSongClick(song.id)}
                   >
                     <div className="flex items-center space-x-4 min-w-0">
-                      {/* Image removed */}
                       <div className="min-w-0">
                         <h3 className="font-semibold truncate">{song.title}</h3>
                         <p className="text-gray-600 truncate">{song.artist}</p>
