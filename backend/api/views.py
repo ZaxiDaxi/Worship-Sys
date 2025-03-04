@@ -6,7 +6,7 @@ from rest_framework import status
 from .models import Song
 from .serializers import SongSerializer
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def get_song_detail(request, song_id):
     try:
         song = Song.objects.get(id=song_id)
@@ -14,12 +14,19 @@ def get_song_detail(request, song_id):
         return Response({"error": "Song not found"}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        # Existing logic for GET
         serializer = SongSerializer(song)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    
+    elif request.method in ['PUT', 'PATCH']:
+        # Use partial update if the method is PATCH
+        partial = request.method == 'PATCH'
+        serializer = SongSerializer(song, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     elif request.method == 'DELETE':
-        # New logic for DELETE
         song.delete()
         return Response(
             {"message": "Song deleted successfully"},

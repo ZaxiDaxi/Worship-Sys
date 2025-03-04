@@ -233,6 +233,33 @@ export default function SongDetail() {
     }
   };
 
+  // New function to update the current song version without creating a new version
+  const updateSong = async () => {
+    if (!song) return;
+    setIsSaving(true);
+    const finalLyrics = transposedLyrics || editedLyrics;
+    const finalKey = transposedKey || song.key;
+    try {
+      const response = await AxiosInstance.put(`songs/${song.id}/`, {
+        title: editedTitle,
+        artist: song.artist,
+        key: finalKey,
+        tempo: song.tempo,
+        time_signature: song.time_signature,
+        lyrics: finalLyrics,
+      });
+      setToast({ message: "Song updated successfully", type: "success" });
+      setTimeout(() => {
+        navigate(`/songs/${response.data.id}`);
+      }, 1500);
+    } catch (err) {
+      console.error("Error updating song:", err);
+      setToast({ message: "Error updating song", type: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleDeleteSong = () => {
     setShowDeleteConfirm(true);
   };
@@ -269,14 +296,13 @@ export default function SongDetail() {
   if (!song) return <div>Song not found</div>;
 
   const displayLyrics = transposedLyrics || editedLyrics;
-  const isMinor = isMinorKey(song.key);
-  const keysToDisplay = isMinor ? MINOR_KEYS : MAJOR_KEYS;
+  const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
 
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
       <div className="flex-1 px-2 py-4 md:px-8 md:py-10 w-full">
-        <Header /> {/* Global Header */}
+        <Header />
         <Card className="bg-white w-full max-w-4xl mx-auto my-4 md:my-8 p-4 md:p-10">
           {/* Title and artist */}
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
@@ -310,20 +336,21 @@ export default function SongDetail() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-4 text-sm md:text-base">
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-2 flex items-center gap-2">
+            <div className="flex flex-wrap gap-4 text-sm">
+              {/* Transposition controls */}
+              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
                 <button
                   onClick={() => transposeSong({ direction: "up" })}
                   disabled={isTransposing}
-                  className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
+                  className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
                   title="Transpose Up"
                 >
-                  <ArrowUpCircle className="h-6 w-6" />
+                  <ArrowUpCircle className="h-5 w-5" />
                 </button>
                 <select
                   value={targetKey}
                   onChange={handleKeyChange}
-                  className="px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                 >
                   <option value="">Select Key</option>
                   {keysToDisplay.map((k) => (
@@ -335,16 +362,17 @@ export default function SongDetail() {
                 <button
                   onClick={() => transposeSong({ direction: "down" })}
                   disabled={isTransposing}
-                  className="p-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
+                  className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
                   title="Transpose Down"
                 >
-                  <ArrowDownCircle className="h-6 w-6" />
+                  <ArrowDownCircle className="h-5 w-5" />
                 </button>
               </div>
+              {/* Edit / Cancel Edit */}
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
                 >
                   Edit
                 </button>
@@ -354,24 +382,35 @@ export default function SongDetail() {
                     setTransposedLyrics(null);
                     setEditMode(false);
                   }}
-                  className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded"
+                  className="bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
                 >
                   Cancel Edit
                 </button>
               )}
+              {/* Save Version Button */}
               <button
                 onClick={saveNewVersion}
                 disabled={isSaving}
-                className="flex items-center gap-2 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-4 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
+                className="flex items-center gap-1 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm"
               >
-                <Save className="h-5 w-5" />
+                <Save className="h-4 w-4" />
                 {isSaving ? "Saving..." : "Save Version"}
               </button>
+              {/* Update current song button */}
+              {editMode && (
+                <button
+                  onClick={updateSong}
+                  disabled={isSaving}
+                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm"
+                >
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              )}
               <button
                 onClick={handleDeleteSong}
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm"
               >
-                <Trash2 className="h-5 w-5" />
+                <Trash2 className="h-4 w-4" />
                 Delete
               </button>
             </div>
@@ -391,11 +430,11 @@ export default function SongDetail() {
               <button
                 type="button"
                 onClick={addLine}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm md:text-base"
+                className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
