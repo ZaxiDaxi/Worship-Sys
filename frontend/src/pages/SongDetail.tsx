@@ -92,12 +92,12 @@ const ChordLine: React.FC<{
   return (
     <div className="space-y-2 relative">
       <div className="max-w-full overflow-x-auto">
-        <div className="relative w-full font-mono whitespace-pre text-sm md:text-lg">
+        <div className="relative w-full font-mono whitespace-pre text-sm md:text-base">
           <div className="relative" style={{ minHeight: "20px" }}>
             {chords.map((c, idx) => (
               <span
                 key={idx}
-                className="absolute text-blue-600 text-sm md:text-lg"
+                className="absolute text-blue-600 text-sm md:text-base"
                 style={{ left: `${c.position * 8}px`, top: "0px" }}
               >
                 {c.chord}
@@ -107,13 +107,13 @@ const ChordLine: React.FC<{
           {editable ? (
             <input
               type="text"
-              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-lg"
+              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base"
               value={text}
               onChange={handleTextChange}
               maxLength={46}
             />
           ) : (
-            <pre className="text-gray-800 font-mono w-full text-sm md:text-lg">
+            <pre className="text-gray-800 font-mono w-full text-sm md:text-base">
               {text}
             </pre>
           )}
@@ -125,13 +125,13 @@ const ChordLine: React.FC<{
             <div key={idx} className="flex gap-2">
               <input
                 type="text"
-                className="border p-1 rounded w-24 text-sm md:text-lg"
+                className="border p-1 rounded w-24 text-sm md:text-base"
                 value={c.chord}
                 onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
               />
               <input
                 type="number"
-                className="border p-1 rounded w-20 text-sm md:text-lg"
+                className="border p-1 rounded w-20 text-sm md:text-base"
                 value={c.position}
                 onChange={(e) => handleChordChange(idx, "position", e.target.value)}
               />
@@ -140,7 +140,7 @@ const ChordLine: React.FC<{
           <button
             type="button"
             onClick={addChord}
-            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-lg"
+            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base"
           >
             + Add Chord
           </button>
@@ -284,15 +284,15 @@ export default function SongDetail() {
               {editMode ? (
                 <input
                   type="text"
-                  className="border border-gray-300 p-2 rounded w-full text-2xl md:text-4xl font-bold mb-2"
+                  className="border border-gray-300 p-2 rounded w-full text-xl md:text-2xl font-bold mb-2"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
                 />
               ) : (
-                <h1 className="text-2xl md:text-4xl font-bold mb-2">{song.title}</h1>
+                <h1 className="text-xl md:text-2xl font-bold mb-2">{song.title}</h1>
               )}
-              <p className="text-gray-600 text-lg md:text-2xl mb-4">By {song.artist}</p>
-              <div className="flex flex-wrap gap-4 text-sm md:text-lg">
+              <p className="text-gray-600 text-base md:text-lg mb-4">By {song.artist}</p>
+              <div className="flex flex-wrap gap-4 text-base md:text-lg">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
                 </span>
@@ -310,7 +310,7 @@ export default function SongDetail() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-4 text-sm md:text-lg">
+            <div className="flex flex-wrap gap-4 text-sm md:text-base">
               <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-2 flex items-center gap-2">
                 <button
                   onClick={() => transposeSong({ direction: "up" })}
@@ -391,7 +391,7 @@ export default function SongDetail() {
               <button
                 type="button"
                 onClick={addLine}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm md:text-lg"
+                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm md:text-base"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
