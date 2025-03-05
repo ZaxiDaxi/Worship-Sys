@@ -73,10 +73,10 @@ const Songs: React.FC = () => {
     if (selectedSongId === null) return;
     try {
       await AxiosInstance.delete(`songs/${selectedSongId}/`);
-      setSongs(songs.filter((song) => song.id !== selectedSongId));
       setToast({ message: "Song deleted successfully", type: "success" });
       setShowDeleteConfirm(false);
       setSelectedSongId(null);
+      window.location.reload(); // Refresh the page after deletion
     } catch (error) {
       console.error("Error deleting song:", error);
       setToast({ message: "Error deleting song", type: "error" });

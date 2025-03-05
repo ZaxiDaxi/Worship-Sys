@@ -7,9 +7,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ArrowUpCircle, ArrowDownCircle, Save, Trash2 } from "lucide-react";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header"; // Added global header
+import { Header } from "@/components/Layout/Header";
 
-// Interfaces for chords, lyrics, and song details
+// ---------- Interfaces ----------
 interface Chord {
   chord: string;
   position: number;
@@ -32,11 +32,31 @@ interface Song {
   version: number;
 }
 
+// ---------- Constants ----------
 const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
 
 function isMinorKey(k: string) {
   return k.endsWith("m");
+}
+
+/**
+ * Splits the text into tokens (words or spaces) while preserving each token’s
+ * start index in the original string.
+ */
+function splitLineByWordsWithIndex(text: string) {
+  const regex = /(\S+|\s+)/g;
+  const tokens: Array<{ token: string; start: number }> = [];
+  let match;
+  let currentIndex = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    const tokenText = match[0];
+    tokens.push({ token: tokenText, start: currentIndex });
+    currentIndex += tokenText.length;
+  }
+
+  return tokens;
 }
 
 /**
@@ -55,6 +75,9 @@ const ChordLine: React.FC<{
     setChords(line.chords);
   }, [line]);
 
+  // ---------------------------
+  // EDIT MODE
+  // ---------------------------
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
     const positionShift = newText.length - text.length;
@@ -89,49 +112,44 @@ const ChordLine: React.FC<{
     onChange?.(text, newChords);
   };
 
-  return (
-    <div className="space-y-2 relative">
-      <div className="max-w-full overflow-x-auto">
-        <div className="relative w-full font-mono whitespace-pre text-sm md:text-base">
-          <div className="relative" style={{ minHeight: "20px" }}>
-            {chords.map((c, idx) => (
-              <span
-                key={idx}
-                className="absolute text-blue-600 text-sm md:text-base"
-                style={{ left: `${c.position * 8}px`, top: "0px" }}
-              >
-                {c.chord}
-              </span>
-            ))}
-          </div>
-          {editable ? (
+  if (editable) {
+    // Show the single-line input with chord positions
+    return (
+      <div className="space-y-2 relative">
+        <div className="max-w-full overflow-x-auto">
+          <div className="relative w-full font-mono whitespace-pre text-sm md:text-base lg:text-lg">
+            <div className="relative" style={{ minHeight: "20px" }}>
+              {chords.map((c, idx) => (
+                <span
+                  key={idx}
+                  className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
+                  style={{ left: `${c.position * 8}px`, top: "0px" }}
+                >
+                  {c.chord}
+                </span>
+              ))}
+            </div>
             <input
               type="text"
-              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base"
+              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base lg:text-lg"
               value={text}
               onChange={handleTextChange}
-              maxLength={46}
+              maxLength={300}
             />
-          ) : (
-            <pre className="text-gray-800 font-mono w-full text-sm md:text-base">
-              {text}
-            </pre>
-          )}
+          </div>
         </div>
-      </div>
-      {editable && (
         <div className="flex flex-col mt-2 space-y-2">
           {chords.map((c, idx) => (
             <div key={idx} className="flex gap-2">
               <input
                 type="text"
-                className="border p-1 rounded w-24 text-sm md:text-base"
+                className="border p-1 rounded w-24 text-sm md:text-base lg:text-lg"
                 value={c.chord}
                 onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
               />
               <input
                 type="number"
-                className="border p-1 rounded w-20 text-sm md:text-base"
+                className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
                 value={c.position}
                 onChange={(e) => handleChordChange(idx, "position", e.target.value)}
               />
@@ -140,16 +158,72 @@ const ChordLine: React.FC<{
           <button
             type="button"
             onClick={addChord}
-            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base"
+            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
           >
             + Add Chord
           </button>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // ---------------------------
+  // READ-ONLY MODE
+  // ---------------------------
+  // CHANGES:
+  //  - Increased line-height to leading-[3.2]
+  //  - Increased chord offset top to -1.2em
+  const tokens = splitLineByWordsWithIndex(text);
+
+  return (
+    <div
+      className="
+        font-mono
+        text-sm md:text-base lg:text-lg
+        leading-[2.5]      /* Larger line-height to prevent overlap on big screens */
+        flex flex-wrap
+      "
+      style={{ marginBottom: "0.5rem" }} // Extra margin if needed
+    >
+      {tokens.map((tokenObj, i) => {
+        const tokenChords = chords.filter(
+          (c) =>
+            c.position >= tokenObj.start &&
+            c.position < tokenObj.start + tokenObj.token.length
+        );
+
+        return (
+          <span
+            key={i}
+            className="relative inline-block whitespace-pre"
+            style={{ marginRight: "4px" }}
+          >
+            {tokenChords.map((c, chordIdx) => {
+              const relIndex = c.position - tokenObj.start;
+              return (
+                <span
+                  key={chordIdx}
+                  className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
+                  style={{
+                    left: `${relIndex}ch`,
+                    top: "-0.7em", // Move chord higher for larger text
+                  }}
+                >
+                  {c.chord}
+                </span>
+              );
+            })}
+            <span>{tokenObj.token}</span>
+          </span>
+        );
+      })}
     </div>
   );
 };
 
+// --------------------------------------------------
+// SONG DETAIL PAGE
+// --------------------------------------------------
 export default function SongDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -233,7 +307,6 @@ export default function SongDetail() {
     }
   };
 
-  // New function to update the current song version without creating a new version
   const updateSong = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -310,15 +383,15 @@ export default function SongDetail() {
               {editMode ? (
                 <input
                   type="text"
-                  className="border border-gray-300 p-2 rounded w-full text-xl md:text-2xl font-bold mb-2"
+                  className="border border-gray-300 p-2 rounded w-full text-xl md:text-2xl lg:text-3xl font-bold mb-2"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
                 />
               ) : (
-                <h1 className="text-xl md:text-2xl font-bold mb-2">{song.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">{song.title}</h1>
               )}
-              <p className="text-gray-600 text-base md:text-lg mb-4">By {song.artist}</p>
-              <div className="flex flex-wrap gap-4 text-base md:text-lg">
+              <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-4">By {song.artist}</p>
+              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
                 </span>
@@ -336,7 +409,7 @@ export default function SongDetail() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex flex-wrap gap-4 text-sm lg:text-base">
               {/* Transposition controls */}
               <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
                 <button
@@ -350,7 +423,7 @@ export default function SongDetail() {
                 <select
                   value={targetKey}
                   onChange={handleKeyChange}
-                  className="px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                  className="px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base lg:text-lg"
                 >
                   <option value="">Select Key</option>
                   {keysToDisplay.map((k) => (
@@ -368,11 +441,12 @@ export default function SongDetail() {
                   <ArrowDownCircle className="h-5 w-5" />
                 </button>
               </div>
+
               {/* Edit / Cancel Edit */}
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+                  className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
                 >
                   Edit
                 </button>
@@ -382,33 +456,37 @@ export default function SongDetail() {
                     setTransposedLyrics(null);
                     setEditMode(false);
                   }}
-                  className="bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm"
+                  className="bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
                 >
                   Cancel Edit
                 </button>
               )}
+
               {/* Save Version Button */}
               <button
                 onClick={saveNewVersion}
                 disabled={isSaving}
-                className="flex items-center gap-1 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm"
+                className="flex items-center gap-1 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
               >
                 <Save className="h-4 w-4" />
                 {isSaving ? "Saving..." : "Save Version"}
               </button>
+
               {/* Update current song button */}
               {editMode && (
                 <button
                   onClick={updateSong}
                   disabled={isSaving}
-                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm"
+                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
                 >
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>
               )}
+
+              {/* Delete */}
               <button
                 onClick={handleDeleteSong}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm"
+                className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete
@@ -417,7 +495,7 @@ export default function SongDetail() {
           </div>
 
           {/* Lyrics / Chords */}
-          <div className="space-y-4 mt-8">
+          <div className="space-y-6 mt-8">
             {displayLyrics.map((line, i) => (
               <ChordLine
                 key={i}
@@ -430,7 +508,7 @@ export default function SongDetail() {
               <button
                 type="button"
                 onClick={addLine}
-                className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm"
+                className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm md:text-base lg:text-lg"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
