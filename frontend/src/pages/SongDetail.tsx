@@ -69,6 +69,7 @@ const ChordLine: React.FC<{
 }> = ({ line, editable, onChange }) => {
   const [text, setText] = useState(line.text);
   const [chords, setChords] = useState<Chord[]>(line.chords);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setText(line.text);
@@ -170,20 +171,20 @@ const ChordLine: React.FC<{
   // ---------------------------
   // READ-ONLY MODE
   // ---------------------------
-  // CHANGES:
-  //  - Increased line-height to leading-[3.2]
-  //  - Increased chord offset top to -1.2em
   const tokens = splitLineByWordsWithIndex(text);
 
+  // Same overlay approach for both mobile & desktop
+  // but bigger line spacing on desktop
   return (
     <div
-      className="
+      className={`
         font-mono
         text-sm md:text-base lg:text-lg
-        leading-[2.5]      /* Larger line-height to prevent overlap on big screens */
+        leading-[2.5] 
+        md:leading-[3.4]  /* bigger line-height on desktop */
         flex flex-wrap
-      "
-      style={{ marginBottom: "0.5rem" }} // Extra margin if needed
+      `}
+      style={{ marginBottom: "0.5rem" }}
     >
       {tokens.map((tokenObj, i) => {
         const tokenChords = chords.filter(
@@ -206,7 +207,8 @@ const ChordLine: React.FC<{
                   className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
                   style={{
                     left: `${relIndex}ch`,
-                    top: "-0.7em", // Move chord higher for larger text
+                    // Raise chord more on desktop so it doesn’t collide
+                    top: isMobile ? "-0.7em" : "-1.5em",
                   }}
                 >
                   {c.chord}
