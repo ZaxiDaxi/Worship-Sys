@@ -1,9 +1,8 @@
-// PersonalDetails.tsx
 import React from "react";
 import { Link } from "react-router-dom";
 
 interface PersonalDetailsProps {
-  profile: any; // You can create a specific interface if you want
+  profile: any;
 }
 
 export const PersonalDetails: React.FC<PersonalDetailsProps> = ({ profile }) => {
@@ -17,7 +16,7 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({ profile }) => 
         shadow-[0px_0px_8px_2px_rgba(0,0,0,0.25)]
         bg-white
         rounded-[15px]
-        p-8
+        p-6
         w-full
         h-full
         flex
@@ -25,10 +24,11 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({ profile }) => 
         justify-between
       "
     >
-      <h2 className="text-3xl font-bold text-gray-700 border-b pb-3">
+      <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-700 border-b pb-2">
         Personal Details
       </h2>
-      <div className="grid grid-cols-2 gap-x-12 gap-y-6 mt-6 text-xl">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mt-4 text-base md:text-lg lg:text-xl">
         <div>
           <p>
             <span className="font-semibold text-gray-600">DOB:</span>{" "}
@@ -59,7 +59,7 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({ profile }) => 
         </div>
       </div>
 
-      <div className="mt-6 text-center text-lg text-gray-700">
+      <div className="mt-6 text-center text-base md:text-lg lg:text-xl text-gray-700">
         <p className="font-semibold">Song this Week</p>
         <Link to="/week-songs">
           <button className="mt-2 font-semibold bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">

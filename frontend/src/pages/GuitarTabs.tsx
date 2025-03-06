@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Edit, Trash2, Search } from "lucide-react";
 import AxiosInstance from "@/components/axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header"; // Added global Header
+import { Header } from "@/components/Layout/Header";
 
 interface GuitarTab {
   id: number;
@@ -20,7 +19,6 @@ interface GuitarTab {
 
 const GuitarTabs: React.FC = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [guitarTabs, setGuitarTabs] = useState<GuitarTab[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -28,17 +26,15 @@ const GuitarTabs: React.FC = () => {
   const defaultPageSize = 5;
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  // Removed image_url from new tab data since photos are no longer needed.
   const [newTabData, setNewTabData] = useState({
     title: "",
     artist: "",
     key: "",
-    tempo: ""
+    tempo: "",
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -46,15 +42,14 @@ const GuitarTabs: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    AxiosInstance.get("guitartabs/", { 
-      params: { 
-        page: currentPage, 
-        page_size: pageSize, 
-        search: searchQuery
-      } 
+    AxiosInstance.get("guitartabs/", {
+      params: {
+        page: currentPage,
+        page_size: pageSize,
+        search: searchQuery,
+      },
     })
       .then((response) => {
-        console.log("Guitar tabs response:", response.data);
         setGuitarTabs(response.data.guitartabs || response.data);
         setTotal(response.data.total || response.data.length);
         setLoading(false);
@@ -123,7 +118,7 @@ const GuitarTabs: React.FC = () => {
         title: "",
         artist: "",
         key: "",
-        tempo: ""
+        tempo: "",
       });
     } catch (error) {
       console.error("Error creating guitar tab:", error);
@@ -134,8 +129,9 @@ const GuitarTabs: React.FC = () => {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <Header /> {/* Global Header */}
+      {/* Removed md:ml-64 for consistent responsiveness */}
+      <div className="flex-1 transition-all duration-300">
+        <Header />
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Guitar Tabs List</h2>
@@ -174,7 +170,6 @@ const GuitarTabs: React.FC = () => {
                       onClick={() => handleTabClick(tab.id)}
                     >
                       <div className="flex items-center space-x-4 min-w-0">
-                        {/* Removed image element */}
                         <div className="min-w-0">
                           <h3 className="font-semibold truncate">{tab.title}</h3>
                           <p className="text-gray-600 truncate">{tab.artist}</p>
@@ -253,8 +248,6 @@ const GuitarTabs: React.FC = () => {
         />
       )}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      
-      {/* Create Tab Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">

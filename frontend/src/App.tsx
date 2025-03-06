@@ -1,88 +1,76 @@
-
 // App.tsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import React from "react";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import ProtectedRoute from "./pages/ProtectedRoute";
+
+// Pages
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import Songs from "./pages/Songs";
 import SongDetail from "./pages/SongDetail";
 import WeekSongs from "./pages/WeekSongs";
 import SongCreate from "./pages/SongCreate";
-import Login from "./pages/Login";
-import ProtectedRoute from "./pages/ProtectedRoute";
-import SelectWeekSongs from "./pages/SelectWeekSongs"; 
 import GuitarTabs from "./pages/GuitarTabs";
 import GuitarTabDetail from "./pages/GuitarTabDetail";
+import SelectWeekSongs from "./pages/SelectWeekSongs";
+import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 
+// Sidebar (make sure this import path points to your actual Sidebar.tsx)
+import { Sidebar } from "./components/Layout/Sidebar";
+
+/** 
+ * MainLayout – includes the Sidebar on larger screens
+ * and sets up the responsive layout logic. 
+ * On mobile, the Sidebar handles “drawer” overlay behavior itself.
+ */
+function MainLayout() {
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Sidebar is always rendered, but internally it decides if it’s a drawer 
+          (mobile) or fixed sidebar (desktop) based on screen size. */}
+      <Sidebar />
+
+      {/* Main content area – offset to the right of the sidebar on md+ 
+          with `md:ml-64`, because the sidebar is 16rem wide. 
+          On small screens, the sidebar is overlay, so no left margin needed. */}
+      <div className="flex-1 mt-16 md:mt-0 md:ml-64 p-4">
+        <Outlet />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * App – configures your routes. 
+ * We keep /login separate from the MainLayout (no sidebar),
+ * while all other routes are nested inside ProtectedRoute + MainLayout.
+ */
 const App = () => (
   <BrowserRouter>
     <Routes>
+      {/* Public route (no sidebar) */}
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/songs"
-        element={
-          <ProtectedRoute>
-            <Songs />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/songs/:id"
-        element={
-          <ProtectedRoute>
-            <SongDetail />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/week-songs"
-        element={
-          <ProtectedRoute>
-            <WeekSongs />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/select-week-songs"
-        element={
-          <ProtectedRoute>
-            <SelectWeekSongs />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/create-song"
-        element={
-          <ProtectedRoute>
-            <SongCreate />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/guitar-tabs"
-        element={
-          <ProtectedRoute>
-            <GuitarTabs />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/guitar-tabs/:id"
-        element={
-          <ProtectedRoute>
-            <GuitarTabDetail />
-          </ProtectedRoute>
-        }
-      />
 
+      {/* Protected routes with the responsive sidebar */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Index />} />
+        <Route path="/songs" element={<Songs />} />
+        <Route path="/songs/:id" element={<SongDetail />} />
+        <Route path="/week-songs" element={<WeekSongs />} />
+        <Route path="/select-week-songs" element={<SelectWeekSongs />} />
+        <Route path="/create-song" element={<SongCreate />} />
+        <Route path="/guitar-tabs" element={<GuitarTabs />} />
+        <Route path="/guitar-tabs/:id" element={<GuitarTabDetail />} />
+      </Route>
+
+      {/* Catch-all for unknown routes */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>

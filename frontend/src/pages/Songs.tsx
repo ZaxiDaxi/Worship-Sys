@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Edit, Trash2, Search } from "lucide-react";
 import AxiosInstance from "@/components/axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header"; // Added Header import
+import { Header } from "@/components/Layout/Header";
 
 interface Song {
   id: number;
@@ -20,7 +19,6 @@ interface Song {
 
 const Songs: React.FC = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -32,16 +30,17 @@ const Songs: React.FC = () => {
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
+  // If user is searching, set a large pageSize.
   const pageSize = searchQuery ? 1000 : defaultPageSize;
 
   useEffect(() => {
     setLoading(true);
-    AxiosInstance.get("songs/", { 
-      params: { 
-        page: currentPage, 
-        page_size: pageSize, 
-        search: searchQuery
-      } 
+    AxiosInstance.get("songs/", {
+      params: {
+        page: currentPage,
+        page_size: pageSize,
+        search: searchQuery,
+      },
     })
       .then((response) => {
         setSongs(response.data.songs);
@@ -54,6 +53,7 @@ const Songs: React.FC = () => {
       });
   }, [currentPage, searchQuery, pageSize]);
 
+  // Reset to page 1 when search changes.
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -76,7 +76,7 @@ const Songs: React.FC = () => {
       setToast({ message: "Song deleted successfully", type: "success" });
       setShowDeleteConfirm(false);
       setSelectedSongId(null);
-      window.location.reload(); // Refresh the page after deletion
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting song:", error);
       setToast({ message: "Error deleting song", type: "error" });
@@ -92,8 +92,9 @@ const Songs: React.FC = () => {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <Header /> {/* Global Header */}
+      {/* Removed md:ml-64 to use full available width */}
+      <div className="flex-1 transition-all duration-300">
+        <Header />
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>

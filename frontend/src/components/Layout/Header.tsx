@@ -22,18 +22,27 @@ export const Header = () => {
 
   return (
     <header className="shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] bg-[#EFF1F7] flex w-full items-stretch gap-5 text-black whitespace-nowrap text-center flex-wrap justify-between px-7 py-[15px]">
-      <div className="flex items-stretch gap-[18px] text-2xl font-semibold my-auto"></div>
-      <div className="flex items-stretch gap-[29px] font-medium">
+      {/* Left side (header title/logo/etc.) */}
+      <div className="flex items-stretch gap-[18px] text-2xl font-semibold my-auto">
+        {/* If you want a header title or logo, you can place it here */}
+      </div>
+
+      {/* Right side: hidden on mobile, visible at md+ */}
+      <div className="hidden md:flex items-stretch gap-[29px] font-medium">
         <div className="flex items-stretch gap-2 text-2xl">
           <img
             loading="lazy"
-            srcSet="https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/a189dc97efbdb147e16deae28d4e91bc31ca3bb86c14d9076506c980a0ed3503?placeholderIfAbsent=true&width=100 100w"
+            src="https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/a189dc97efbdb147e16deae28d4e91bc31ca3bb86c14d9076506c980a0ed3503?width=100"
             className="aspect-[1] object-contain w-[65px] shrink-0"
             alt="User avatar"
           />
           <span className="my-auto">john</span>
         </div>
-        <button onClick={handleLogout} className="bg-[#16BBE5] text-xl my-auto px-[22px] py-[9px] rounded-[5px]">
+
+        <button
+          onClick={handleLogout}
+          className="bg-[#16BBE5] text-xl my-auto px-[22px] py-[9px] rounded-[5px]"
+        >
           Logout
         </button>
       </div>

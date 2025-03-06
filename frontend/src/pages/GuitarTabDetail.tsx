@@ -6,9 +6,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { TabNotation } from "@/components/GuitarTab/TabNotation";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit, Save, Trash2, RotateCcw } from "lucide-react";
-import { Header } from "@/components/Layout/Header"; // Added global Header
+import { Header } from "@/components/Layout/Header";
 
-// Same interfaces as your TabNotation:
 interface NoteConnection {
   type: "slide" | "hammerOn" | "pullOff";
   connectedString: number;
@@ -23,7 +22,7 @@ interface Note {
 }
 
 interface StringData {
-  string: number; // 1..6
+  string: number;
   notes: Note[];
 }
 
@@ -54,63 +53,30 @@ export default function GuitarTabDetail() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
 
-  // Editable text fields
+  // Editable fields
   const [editedTitle, setEditedTitle] = useState("");
   const [editedArtist, setEditedArtist] = useState("");
-
-  // The core tab data: multiple lines
   const [lines, setLines] = useState<TabLine[]>([]);
-
-  /**
-   * ============ NEW: HISTORY STACK ============
-   * We'll store snapshots of `lines` in here. The top (end) is the most recent.
-   */
   const [linesHistory, setLinesHistory] = useState<TabLine[][]>([]);
 
-  /**
-   * Helper to push a snapshot of the *current* lines to the history stack.
-   * We'll call this right BEFORE we mutate `lines`.
-   */
   function snapshotLines() {
     setLinesHistory((prev) => [
       ...prev,
-      // Deep-clone the current lines so we don't store references
       JSON.parse(JSON.stringify(lines)),
     ]);
   }
 
-  /**
-   * Undo = revert to the last snapshot in linesHistory.
-   */
   function handleUndo() {
-    if (linesHistory.length === 0) {
-      return; // nothing to undo
-    }
-    // Pop the last snapshot
+    if (linesHistory.length === 0) return;
     const previous = linesHistory[linesHistory.length - 1];
-    setLines(previous); // revert to it
+    setLines(previous);
     setLinesHistory((prev) => prev.slice(0, prev.length - 1));
   }
 
-  // For new note inputs:
-  const [newNoteInputs, setNewNoteInputs] = useState<
-    { fret: string; position: string }[][]
-  >([]);
+  const [newNoteInputs, setNewNoteInputs] = useState<{ fret: string; position: string }[][]>([]);
+  const [selectedNote, setSelectedNote] = useState<{ lineIndex: number; stringIndex: number; noteIndex: number } | null>(null);
+  const [techniqueType, setTechniqueType] = useState<"slide" | "hammerOn" | "pullOff" | null>(null);
 
-  // ============ Technique selection & note selection for connections ===========
-  const [selectedNote, setSelectedNote] = useState<{
-    lineIndex: number;
-    stringIndex: number;
-    noteIndex: number;
-  } | null>(null);
-
-  const [techniqueType, setTechniqueType] = useState<
-    "slide" | "hammerOn" | "pullOff" | null
-  >(null);
-
-  // ----------------------------
-  // FETCH TAB DETAILS
-  // ----------------------------
   useEffect(() => {
     const fetchTabDetail = async () => {
       try {
@@ -118,12 +84,8 @@ export default function GuitarTabDetail() {
         const response = await AxiosInstance.get(`guitartabs/${id}/`);
         const data: GuitarTab = response.data;
         setTab(data);
-
-        // Set editable fields
         setEditedTitle(data.title);
         setEditedArtist(data.artist);
-
-        // If data has lines, use them; otherwise, a single default line
         const loadedLines = data.tab_data?.lines?.length
           ? data.tab_data.lines
           : [
@@ -138,16 +100,11 @@ export default function GuitarTabDetail() {
                 ],
               },
             ];
-
         setLines(loadedLines);
-
-        // Also initialize newNoteInputs
         const inputs = loadedLines.map((line) =>
           line.strings.map(() => ({ fret: "", position: "" }))
         );
         setNewNoteInputs(inputs);
-
-        // Initialize history with this starting point
         setLinesHistory([JSON.parse(JSON.stringify(loadedLines))]);
       } catch (error: any) {
         console.error("Error fetching tab detail:", error);
@@ -164,14 +121,8 @@ export default function GuitarTabDetail() {
     }
   }, [id, navigate]);
 
-  // ----------------------------
-  // ADD A NEW "LINE" OF TABS
-  // ----------------------------
   const handleAddLine = () => {
-    // 1) snapshot the current lines
     snapshotLines();
-
-    // 2) do the mutation
     const newLine: TabLine = {
       strings: [
         { string: 1, notes: [] },
@@ -184,17 +135,12 @@ export default function GuitarTabDetail() {
     };
     const updated = [...lines, newLine];
     setLines(updated);
-
-    // Also update newNoteInputs
     setNewNoteInputs((prev) => [
       ...prev,
       newLine.strings.map(() => ({ fret: "", position: "" })),
     ]);
   };
 
-  // ----------------------------
-  // UPDATE TYPED INPUTS
-  // ----------------------------
   const handleChangeInput = (
     lineIndex: number,
     stringIndex: number,
@@ -206,75 +152,49 @@ export default function GuitarTabDetail() {
     setNewNoteInputs(updated);
   };
 
-  // ----------------------------
-  // PRESS ENTER => ADD ALL VALID NOTES IN THAT LINE
-  // THEN CLEAR INPUTS FOR THAT LINE
-  // ----------------------------
   const handleLineKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     lineIndex: number
   ) => {
     if (e.key === "Enter") {
-      // Check if we have at least one valid note to add
       const hasAnyValidNote = newNoteInputs[lineIndex].some((entry) => {
         const fretValue = parseInt(entry.fret, 10);
         const posValue = parseInt(entry.position, 10);
         return !isNaN(fretValue) && !isNaN(posValue);
       });
-
-      if (!hasAnyValidNote) {
-        // No valid notes to add, do nothing
-        return;
-      }
-
-      // 1) snapshot
+      if (!hasAnyValidNote) return;
       snapshotLines();
-
-      // 2) do the mutation
       const updatedLines = [...lines];
       const updatedInputs = [...newNoteInputs];
-
       updatedInputs[lineIndex].forEach((entry, stringIdx) => {
         const fretValue = parseInt(entry.fret, 10);
         const posValue = parseInt(entry.position, 10);
-
         if (!isNaN(fretValue) && !isNaN(posValue)) {
-          // Check for duplicates on the same string
-          const alreadyExists = updatedLines[lineIndex].strings[
-            stringIdx
-          ].notes.some((note) => note.position === posValue);
-
+          const alreadyExists = updatedLines[lineIndex].strings[stringIdx].notes.some(
+            (note) => note.position === posValue
+          );
           if (!alreadyExists) {
             const newNote: Note = { fret: fretValue, position: posValue };
             updatedLines[lineIndex].strings[stringIdx].notes.push(newNote);
           }
         }
-        // Always clear the input
         updatedInputs[lineIndex][stringIdx] = { fret: "", position: "" };
       });
-
       setLines(updatedLines);
       setNewNoteInputs(updatedInputs);
     }
   };
 
-  // ----------------------------
-  // HANDLE NOTE CLICK => Possibly connect
-  // ----------------------------
   const handleNoteClick = (
     lineIndex: number,
     stringIndex: number,
     noteIndex: number
   ) => {
-    // If we haven't selected a "from" note yet, store this one
     if (!selectedNote) {
       setSelectedNote({ lineIndex, stringIndex, noteIndex });
       return;
     }
-
-    // If we do have a selected note AND a technique, connect
     if (techniqueType) {
-      // If the user clicked the same note, ignore
       if (
         lineIndex === selectedNote.lineIndex &&
         stringIndex === selectedNote.stringIndex &&
@@ -283,44 +203,29 @@ export default function GuitarTabDetail() {
         alert("Cannot connect a note to itself.");
         return;
       }
-
-      // 1) snapshot
       snapshotLines();
-
-      // 2) do the mutation
       const updatedLines = [...lines];
-
       const fromLine = updatedLines[selectedNote.lineIndex];
       const fromStringData = fromLine.strings[selectedNote.stringIndex];
       const fromNote = fromStringData.notes[selectedNote.noteIndex];
-
       const toLine = updatedLines[lineIndex];
       const toStringData = toLine.strings[stringIndex];
       const toNote = toStringData.notes[noteIndex];
-
       fromNote.connection = {
         type: techniqueType,
         connectedString: toStringData.string,
         connectedFret: toNote.fret,
         connectedPosition: toNote.position,
       };
-
       setLines(updatedLines);
-
-      // Clear selection
       setSelectedNote(null);
       setTechniqueType(null);
     }
   };
 
-  // ----------------------------
-  // SAVE CHANGES
-  // ----------------------------
   const handleSaveChanges = async () => {
     if (!tab) return;
-
     const newTabData: GuitarTabData = { lines };
-
     try {
       const response = await AxiosInstance.put(`guitartabs/${id}/`, {
         title: editedTitle,
@@ -329,7 +234,6 @@ export default function GuitarTabDetail() {
       });
       setTab(response.data);
       setEditMode(false);
-      // We don't snapshot here, but you could if you wanted
     } catch (error: any) {
       console.error("Error updating tab:", error);
       if (error.response && error.response.status === 401) {
@@ -338,9 +242,6 @@ export default function GuitarTabDetail() {
     }
   };
 
-  // ----------------------------
-  // DELETE TAB
-  // ----------------------------
   const handleDeleteTab = async () => {
     if (!tab) return;
     try {
@@ -354,14 +255,11 @@ export default function GuitarTabDetail() {
     }
   };
 
-  // ----------------------------------------------------------------
-  // RENDER
-  // ----------------------------------------------------------------
   if (loading) {
     return (
       <div className="relative flex min-h-screen bg-[#EFF1F7]">
         <Sidebar />
-        <div className={`flex-1 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <div className="flex-1 transition-all duration-300">
           <div className="p-6">Loading tab details...</div>
         </div>
       </div>
@@ -372,7 +270,7 @@ export default function GuitarTabDetail() {
     return (
       <div className="relative flex min-h-screen bg-[#EFF1F7]">
         <Sidebar />
-        <div className={`flex-1 ${isMobile ? "ml-0" : "md:ml-64"}`}>
+        <div className="flex-1 transition-all duration-300">
           <div className="p-6">
             <Card className="p-6 bg-white">
               <h1 className="text-2xl font-bold mb-4">Tab Not Found</h1>
@@ -393,10 +291,10 @@ export default function GuitarTabDetail() {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <Header /> {/* Global Header */}
+      {/* Removed conditional margin for consistent responsiveness */}
+      <div className="flex-1 transition-all duration-300">
+        <Header />
         <div className="p-6">
-          {/* BACK BUTTON */}
           <button
             onClick={() => navigate("/guitar-tabs")}
             className="flex items-center gap-2 text-blue-600 mb-4 hover:text-blue-800"
@@ -404,9 +302,7 @@ export default function GuitarTabDetail() {
             <ArrowLeft className="h-5 w-5" />
             Back to Guitar Tabs
           </button>
-
           <Card className="p-6 bg-white">
-            {/* HEADER (Title / Artist / Buttons) */}
             <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
               <div>
                 {editMode ? (
@@ -441,8 +337,7 @@ export default function GuitarTabDetail() {
                   </>
                 )}
               </div>
-
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap gap-3">
                 {!editMode ? (
                   <>
                     <button
@@ -469,8 +364,6 @@ export default function GuitarTabDetail() {
                       <Save className="h-5 w-5" />
                       Save
                     </button>
-
-                    {/* Undo button */}
                     <button
                       onClick={handleUndo}
                       className="flex items-center gap-2 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
@@ -483,17 +376,13 @@ export default function GuitarTabDetail() {
                 )}
               </div>
             </div>
-
-            {/* Technique Buttons (only in edit mode) */}
             {editMode && (
               <div className="flex items-center gap-2 mb-4">
                 <p className="font-medium text-sm">Select Technique:</p>
                 <button
                   onClick={() => setTechniqueType("slide")}
                   className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "slide"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
+                    techniqueType === "slide" ? "bg-blue-500 text-white" : "bg-gray-200"
                   }`}
                 >
                   Slide
@@ -501,9 +390,7 @@ export default function GuitarTabDetail() {
                 <button
                   onClick={() => setTechniqueType("hammerOn")}
                   className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "hammerOn"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
+                    techniqueType === "hammerOn" ? "bg-blue-500 text-white" : "bg-gray-200"
                   }`}
                 >
                   H.O.
@@ -511,9 +398,7 @@ export default function GuitarTabDetail() {
                 <button
                   onClick={() => setTechniqueType("pullOff")}
                   className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "pullOff"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
+                    techniqueType === "pullOff" ? "bg-blue-500 text-white" : "bg-gray-200"
                   }`}
                 >
                   P.O.
@@ -525,10 +410,7 @@ export default function GuitarTabDetail() {
                 )}
               </div>
             )}
-
-            {/* TAB LINES */}
             {editMode ? (
-              // EDIT MODE
               <div className="space-y-8">
                 {lines.map((line, lineIndex) => (
                   <div
@@ -536,9 +418,7 @@ export default function GuitarTabDetail() {
                     className="border border-gray-200 rounded bg-gray-50 p-4"
                   >
                     <h2 className="font-semibold mb-4">Line {lineIndex + 1}</h2>
-
                     <div className="flex flex-col md:flex-row gap-4">
-                      {/* NOTE ENTRY FIELDS */}
                       <div className="md:w-1/3 space-y-6">
                         {line.strings.map((stringData, stringIdx) => (
                           <div
@@ -548,7 +428,6 @@ export default function GuitarTabDetail() {
                             <h3 className="font-medium mb-2">
                               String {stringData.string}
                             </h3>
-                            {/* Fret/Position pair */}
                             <div className="flex items-center gap-4 mb-2">
                               <div className="flex flex-col items-center">
                                 <label className="text-xs">Fret</label>
@@ -557,12 +436,7 @@ export default function GuitarTabDetail() {
                                   className="border border-gray-300 rounded w-12 text-center"
                                   value={newNoteInputs[lineIndex][stringIdx].fret}
                                   onChange={(e) =>
-                                    handleChangeInput(
-                                      lineIndex,
-                                      stringIdx,
-                                      "fret",
-                                      e.target.value
-                                    )
+                                    handleChangeInput(lineIndex, stringIdx, "fret", e.target.value)
                                   }
                                   onKeyDown={(e) =>
                                     handleLineKeyDown(e, lineIndex)
@@ -574,16 +448,9 @@ export default function GuitarTabDetail() {
                                 <input
                                   type="number"
                                   className="border border-gray-300 rounded w-12 text-center"
-                                  value={
-                                    newNoteInputs[lineIndex][stringIdx].position
-                                  }
+                                  value={newNoteInputs[lineIndex][stringIdx].position}
                                   onChange={(e) =>
-                                    handleChangeInput(
-                                      lineIndex,
-                                      stringIdx,
-                                      "position",
-                                      e.target.value
-                                    )
+                                    handleChangeInput(lineIndex, stringIdx, "position", e.target.value)
                                   }
                                   onKeyDown={(e) =>
                                     handleLineKeyDown(e, lineIndex)
@@ -594,8 +461,6 @@ export default function GuitarTabDetail() {
                           </div>
                         ))}
                       </div>
-
-                      {/* PREVIEW (right side) */}
                       <div className="md:w-2/3 border border-gray-200 p-2 rounded bg-white flex items-center justify-center">
                         <TabNotation
                           tabData={line}
@@ -608,8 +473,6 @@ export default function GuitarTabDetail() {
                     </div>
                   </div>
                 ))}
-
-                {/* + Add Another Line */}
                 <button
                   type="button"
                   onClick={handleAddLine}
@@ -619,7 +482,6 @@ export default function GuitarTabDetail() {
                 </button>
               </div>
             ) : (
-              // VIEW MODE (read-only)
               <div className="space-y-8">
                 {lines.map((line, lineIndex) => (
                   <div
@@ -632,8 +494,6 @@ export default function GuitarTabDetail() {
                 ))}
               </div>
             )}
-
-            {/* TIMESTAMPS */}
             {tab.created_at && (
               <p className="text-sm text-gray-500 mt-6">
                 Created: {new Date(tab.created_at).toLocaleDateString()}

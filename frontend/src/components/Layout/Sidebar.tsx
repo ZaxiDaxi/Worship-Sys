@@ -1,9 +1,11 @@
-
+// Sidebar.tsx
 import React, { useState, useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+// Example mobile hook or a custom media query:
+import { useIsMobile } from "@/hooks/use-mobile";
 
+// Example menu items
 const menuItems = [
   { id: 1, label: "Overview", path: "/" },
   { id: 2, label: "Songs", path: "/songs" },
@@ -13,50 +15,65 @@ const menuItems = [
 ];
 
 export const Sidebar = () => {
-  const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();   // true if below some breakpoint (e.g., 768px)
+  const [isOpen, setIsOpen] = useState(!isMobile);
 
+  // Whenever the screen size changes to mobile, or we navigate to a new page, close the sidebar
   useEffect(() => {
     if (isMobile) {
       setIsOpen(false);
+    } else {
+      // On bigger screens, keep it open by default
+      setIsOpen(true);
     }
-  }, [location.pathname, isMobile]);
+  }, [isMobile, location.pathname]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleNavigation = (item: { path?: string }) => {
-    if (item.path) {
-      navigate(item.path);
-    }
-    if (isMobile) {
-      setIsOpen(false);
+  const handleNavigation = (path: string | undefined) => {
+    if (path) {
+      navigate(path);
+      // Close sidebar if we are on mobile
+      if (isMobile) {
+        setIsOpen(false);
+      }
     }
   };
 
   return (
     <>
+      {/* Hamburger (or X) button on smaller screens */}
       {isMobile && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md"
+          className="fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md md:hidden"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       )}
 
+      {/* The actual sidebar container */}
       <aside
-        className={`bg-white shadow-lg flex flex-col text-2xl text-black font-medium transition-all duration-300 overflow-y-scroll scrollbar-hide ${
-          isMobile
-            ? `fixed top-0 left-0 h-full w-full z-40 ${
-                isOpen ? "translate-x-0" : "-translate-x-full"
-              }`
-            : "w-64 h-screen fixed top-0 left-0 z-40"
-        }`}
+        className={`
+          bg-white shadow-lg flex flex-col text-2xl text-black font-medium
+          transition-transform duration-300 overflow-y-auto
+          ${isMobile ? "fixed" : "fixed md:fixed"}
+          top-0 left-0
+          h-screen
+          z-40
+          ${isMobile
+            ? // On mobile, slide in/out from the left
+              (isOpen ? "translate-x-0 w-[80%]" : "-translate-x-full w-[80%]")
+            : // On md+ screens, fix a 16rem wide sidebar on the left
+              "w-64 translate-x-0"
+          }
+        `}
       >
+        {/* Logo area */}
         <div className="sticky top-0 bg-white p-5 flex flex-col items-center z-50">
           <img
             loading="lazy"
@@ -66,34 +83,27 @@ export const Sidebar = () => {
           />
         </div>
 
-        <nav className="flex-1 overflow-y-auto min-h-screen flex flex-col items-center space-y-4 py-5 scrollbar-hide">
-          {menuItems.map((item) => (
-            <div
-              key={item.id}
-              className={`w-3/4 text-center px-6 py-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-[#16BBE5]/80 ${
-                location.pathname === item.path
-                  ? "bg-[#16BBE5] text-black"
-                  : "bg-white hover:text-black"
-              }`}
-              onClick={() => handleNavigation(item)}
-            >
-              <span>{item.label}</span>
-            </div>
-          ))}
+        {/* Nav menu */}
+        <nav className="flex-1 flex flex-col items-center space-y-4 py-5">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <div
+                key={item.id}
+                className={`
+                  w-3/4 text-center px-6 py-3 rounded-lg cursor-pointer
+                  transition-colors duration-200
+                  ${isActive ? "bg-[#16BBE5] text-black"
+                             : "bg-white hover:bg-[#16BBE5]/80"}
+                `}
+                onClick={() => handleNavigation(item.path)}
+              >
+                {item.label}
+              </div>
+            );
+          })}
         </nav>
       </aside>
-
-      <style>
-        {`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}
-      </style>
     </>
   );
 };

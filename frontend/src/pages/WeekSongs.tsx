@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Header } from "@/components/Layout/Header";
 import { Plus, Trash2 } from "lucide-react";
-import { Header } from "@/components/Layout/Header"; // Added Header import
 
 interface Song {
   id: number;
@@ -17,7 +16,6 @@ interface Song {
 
 const WeekSongs = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [weekSongs, setWeekSongs] = useState<Song[]>(() => {
     const stored = localStorage.getItem("weekSongs");
     return stored ? JSON.parse(stored) : [];
@@ -38,10 +36,11 @@ const WeekSongs = () => {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <Header /> {/* Global Header */}
+
+      {/* Removed md:ml-64 to avoid pushing content on larger screens */}
+      <div className="flex-1 transition-all duration-300">
+        <Header />
         <div className="p-6">
-          {/* Page-specific subheader with title and edit button */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
             <button
@@ -52,6 +51,7 @@ const WeekSongs = () => {
               {weekSongs.length === 0 ? "Select Songs" : "Edit Week Songs"}
             </button>
           </div>
+
           {weekSongs.length > 0 ? (
             <div className="space-y-4">
               {weekSongs.map((song) => (

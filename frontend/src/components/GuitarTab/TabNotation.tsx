@@ -190,7 +190,7 @@ export const TabNotation: React.FC<TabProps> = ({
                         x={labelX}
                         y={labelY}
                         textAnchor="middle"
-                        fontSize="14"
+                        fontSize="20"
                         fill="black"
                         style={{ fontWeight: "bold" }}
                       >
@@ -211,7 +211,7 @@ export const TabNotation: React.FC<TabProps> = ({
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="black"
-                fontSize="14"
+                fontSize="20"
                 style={{ cursor: editMode ? "pointer" : "default" }}
                 onClick={() => {
                   if (editMode && onNoteClick) {

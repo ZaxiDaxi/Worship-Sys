@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import AxiosInstance from "@/components/axios"; // Use the custom Axios instance
+import AxiosInstance from "@/components/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header"; // Added global header
+import { Header } from "@/components/Layout/Header";
 
 interface Chord {
   chord: string;
@@ -45,7 +44,7 @@ const ChordLineCreator: React.FC<{
     if (field === "chord") {
       updated[chordIndex].chord = value as string;
     } else {
-      let pos = Math.max(0, Math.min(text.length, Number(value)));
+      const pos = Math.max(0, Math.min(text.length, Number(value)));
       updated[chordIndex].position = pos;
     }
     setChords(updated);
@@ -63,7 +62,11 @@ const ChordLineCreator: React.FC<{
       <div className="relative w-full font-mono text-sm">
         <div className="relative text-blue-600" style={{ minHeight: "20px" }}>
           {chords.map(({ chord, position }, idx) => (
-            <span key={idx} className="absolute" style={{ left: `${position * 8}px`, top: "0px" }}>
+            <span
+              key={idx}
+              className="absolute"
+              style={{ left: `${position * 8}px`, top: "0px" }}
+            >
               {chord}
             </span>
           ))}
@@ -75,6 +78,7 @@ const ChordLineCreator: React.FC<{
           onChange={handleTextChange}
         />
       </div>
+
       <div className="flex flex-col mt-2 space-y-2">
         {chords.map((chordObj, idx) => (
           <div key={idx} className="flex gap-2">
@@ -92,11 +96,20 @@ const ChordLineCreator: React.FC<{
             />
           </div>
         ))}
-        <button type="button" onClick={addChord} className="bg-purple-500 text-white px-3 py-1 rounded">
+        <button
+          type="button"
+          onClick={addChord}
+          className="bg-purple-500 text-white px-3 py-1 rounded"
+        >
           + Add Chord
         </button>
       </div>
-      <button type="button" onClick={() => onRemove(index)} className="mt-2 text-sm text-red-500 underline">
+
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        className="mt-2 text-sm text-red-500 underline"
+      >
         Remove this line
       </button>
     </div>
@@ -104,14 +117,16 @@ const ChordLineCreator: React.FC<{
 };
 
 export default function SongCreate() {
-  const isMobile = useIsMobile();
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [keyVal, setKeyVal] = useState("");
   const [tempo, setTempo] = useState("");
   const [timeSignature, setTimeSignature] = useState("");
   const [lines, setLines] = useState<LyricLine[]>([{ text: "", chords: [] }]);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
 
   const addLine = () => {
     setLines([...lines, { text: "", chords: [] }]);
@@ -158,8 +173,10 @@ export default function SongCreate() {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className={`flex-1 transition-all duration-300 ${isMobile ? "ml-0" : "md:ml-64"}`}>
-        <Header /> {/* Global Header */}
+
+      {/* Removed md:ml-64 to let the main content fill all space */}
+      <div className="flex-1 transition-all duration-300">
+        <Header />
         <div className="p-6">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-md shadow">
             <h1 className="text-2xl font-bold mb-4">Create New Song</h1>
@@ -174,6 +191,7 @@ export default function SongCreate() {
                   required
                 />
               </div>
+
               <div>
                 <label className="block mb-1 font-semibold">Artist</label>
                 <input
@@ -183,6 +201,7 @@ export default function SongCreate() {
                   onChange={(e) => setArtist(e.target.value)}
                 />
               </div>
+
               <div>
                 <label className="block mb-1 font-semibold">Key</label>
                 <input
@@ -192,6 +211,7 @@ export default function SongCreate() {
                   onChange={(e) => setKeyVal(e.target.value)}
                 />
               </div>
+
               <div>
                 <label className="block mb-1 font-semibold">Tempo</label>
                 <input
@@ -201,6 +221,7 @@ export default function SongCreate() {
                   onChange={(e) => setTempo(e.target.value)}
                 />
               </div>
+
               <div>
                 <label className="block mb-1 font-semibold">Time Signature</label>
                 <input
@@ -210,6 +231,7 @@ export default function SongCreate() {
                   onChange={(e) => setTimeSignature(e.target.value)}
                 />
               </div>
+
               <div>
                 <h2 className="text-lg font-semibold mb-2 mt-6">Lyrics & Chords</h2>
                 {lines.map((line, i) => (
@@ -221,17 +243,26 @@ export default function SongCreate() {
                     onRemove={handleRemoveLine}
                   />
                 ))}
-                <button type="button" onClick={addLine} className="bg-blue-500 text-white px-4 py-2 rounded">
+                <button
+                  type="button"
+                  onClick={addLine}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
                   + Add Line
                 </button>
               </div>
-              <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded font-semibold">
+
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-6 py-2 rounded font-semibold"
+              >
                 Create Song
               </button>
             </form>
           </div>
         </div>
       </div>
+
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );

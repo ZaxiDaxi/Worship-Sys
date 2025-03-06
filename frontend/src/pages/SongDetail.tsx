@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios"; // Use your custom Axios instance
+import AxiosInstance from "@/components/axios";
 import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ArrowUpCircle, ArrowDownCircle, Save, Trash2 } from "lucide-react";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header";
+import { Header } from "@/components/Layout/Header"; // Global Header
+import { TabNotation } from "@/components/GuitarTab/TabNotation"; // For showing attached tab
 
-// ---------- Interfaces ----------
+// -------------------------
+// Interfaces
+// -------------------------
 interface Chord {
   chord: string;
   position: number;
@@ -30,38 +33,31 @@ interface Song {
   time_signature?: string;
   lyrics: LyricLine[];
   version: number;
+  guitar_tab_id?: number | null;
 }
-
-// ---------- Constants ----------
-const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
 
 function isMinorKey(k: string) {
   return k.endsWith("m");
 }
 
-/**
- * Splits the text into tokens (words or spaces) while preserving each token’s
- * start index in the original string.
- */
+// A small helper to split the lyric line text so we can position chords correctly
 function splitLineByWordsWithIndex(text: string) {
   const regex = /(\S+|\s+)/g;
   const tokens: Array<{ token: string; start: number }> = [];
   let match;
   let currentIndex = 0;
-
   while ((match = regex.exec(text)) !== null) {
     const tokenText = match[0];
     tokens.push({ token: tokenText, start: currentIndex });
     currentIndex += tokenText.length;
   }
-
   return tokens;
 }
 
-/**
- * ChordLine Component
- */
+// -------------------------
+// ChordLine Component
+// (used in each lyric line)
+// -------------------------
 const ChordLine: React.FC<{
   line: LyricLine;
   editable: boolean;
@@ -76,9 +72,7 @@ const ChordLine: React.FC<{
     setChords(line.chords);
   }, [line]);
 
-  // ---------------------------
-  // EDIT MODE
-  // ---------------------------
+  // Handle typed changes to the lyric text
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
     const positionShift = newText.length - text.length;
@@ -91,6 +85,7 @@ const ChordLine: React.FC<{
     onChange?.(newText, updatedChords);
   };
 
+  // Handle chord or chord-position edits
   const handleChordChange = (
     index: number,
     field: "chord" | "position",
@@ -107,14 +102,17 @@ const ChordLine: React.FC<{
     onChange?.(text, updated);
   };
 
+  // Add a new (empty) chord
   const addChord = () => {
     const newChords = [...chords, { chord: "", position: 0 }];
     setChords(newChords);
     onChange?.(text, newChords);
   };
 
+  // ---------------------------------------
+  // Editable lyric line (input + chord list)
+  // ---------------------------------------
   if (editable) {
-    // Show the single-line input with chord positions
     return (
       <div className="space-y-2 relative">
         <div className="max-w-full overflow-x-auto">
@@ -139,6 +137,7 @@ const ChordLine: React.FC<{
             />
           </div>
         </div>
+        {/* Chord editor (the list of chord inputs) */}
         <div className="flex flex-col mt-2 space-y-2">
           {chords.map((c, idx) => (
             <div key={idx} className="flex gap-2">
@@ -168,22 +167,13 @@ const ChordLine: React.FC<{
     );
   }
 
-  // ---------------------------
-  // READ-ONLY MODE
-  // ---------------------------
+  // ---------------------------------------
+  // Read-only mode (the chords above words)
+  // ---------------------------------------
   const tokens = splitLineByWordsWithIndex(text);
-
-  // Same overlay approach for both mobile & desktop
-  // but bigger line spacing on desktop
   return (
     <div
-      className={`
-        font-mono
-        text-sm md:text-base lg:text-lg
-        leading-[2.5] 
-        md:leading-[3.4]  /* bigger line-height on desktop */
-        flex flex-wrap
-      `}
+      className="font-mono text-sm md:text-base lg:text-lg leading-[2.5] md:leading-[3.4] flex flex-wrap"
       style={{ marginBottom: "0.5rem" }}
     >
       {tokens.map((tokenObj, i) => {
@@ -192,7 +182,6 @@ const ChordLine: React.FC<{
             c.position >= tokenObj.start &&
             c.position < tokenObj.start + tokenObj.token.length
         );
-
         return (
           <span
             key={i}
@@ -207,7 +196,6 @@ const ChordLine: React.FC<{
                   className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
                   style={{
                     left: `${relIndex}ch`,
-                    // Raise chord more on desktop so it doesn’t collide
                     top: isMobile ? "-0.7em" : "-1.5em",
                   }}
                 >
@@ -223,9 +211,9 @@ const ChordLine: React.FC<{
   );
 };
 
-// --------------------------------------------------
-// SONG DETAIL PAGE
-// --------------------------------------------------
+// -------------------------
+// MAIN SongDetail Component
+// -------------------------
 export default function SongDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -242,31 +230,79 @@ export default function SongDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(
+    null
+  );
 
+  // -------------------------
+  // ADDED: States to handle attaching a guitar tab
+  // -------------------------
+  const [attachedTab, setAttachedTab] = useState<any>(null);         // the chosen tab
+  const [showTabSelectionModal, setShowTabSelectionModal] = useState(false);
+  const [availableTabs, setAvailableTabs] = useState<any[]>([]);
+
+  // -------------------------
+  // Fetch Song Data
+  // -------------------------
   useEffect(() => {
+    setLoading(true);
     AxiosInstance.get(`songs/${id}/`)
       .then((res) => {
-        setSong(res.data);
-        setEditedTitle(res.data.title);
-        setEditedLyrics(res.data.lyrics);
-        setLoading(false);
+        const data: Song = res.data;
+        setSong(data);
+        setEditedTitle(data.title);
+        setEditedLyrics(data.lyrics);
+
+        // If there's an attached guitar_tab_id, fetch that tab
+        if (data.guitar_tab_id) {
+          AxiosInstance.get(`guitartabs/${data.guitar_tab_id}/`)
+            .then((tabRes) => {
+              setAttachedTab(tabRes.data);
+            })
+            .catch((tabErr) => {
+              console.error("Error fetching attached guitar tab:", tabErr);
+            });
+        }
       })
       .catch((err) => {
         console.error("Error fetching song details:", err);
-        setLoading(false);
         if (err.response && err.response.status === 401) {
           navigate("/login");
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [id, navigate]);
 
+  // -------------------------
+  // If user wants to attach a tab, fetch a list of available tabs
+  // -------------------------
+  useEffect(() => {
+    if (showTabSelectionModal) {
+      AxiosInstance.get("guitartabs/")
+        .then((response) => {
+          // The endpoint might return guitar tabs in different ways, adapt as needed:
+          setAvailableTabs(response.data.guitartabs || response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching guitar tabs:", error);
+        });
+    }
+  }, [showTabSelectionModal]);
+
+  // -------------------------
+  // Handle lyric text changes
+  // -------------------------
   const handleLyricChange = (index: number, text: string, chords: Chord[]) => {
     const updated = [...editedLyrics];
     updated[index] = { text, chords };
     setEditedLyrics(updated);
   };
 
+  // -------------------------
+  // Transpose logic
+  // -------------------------
   const transposeSong = async (payload: { direction?: "up" | "down"; target_key?: string }) => {
     if (!song) return;
     if (!payload.direction && !payload.target_key) return;
@@ -283,6 +319,9 @@ export default function SongDetail() {
     }
   };
 
+  // -------------------------
+  // Save a brand new version
+  // -------------------------
   const saveNewVersion = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -296,19 +335,23 @@ export default function SongDetail() {
         tempo: song.tempo,
         time_signature: song.time_signature,
         lyrics: finalLyrics,
+        guitar_tab_id: attachedTab ? attachedTab.id : null, // attach tab if chosen
       });
-      setToast({ message: "Song saved successfully", type: "success" });
-      setTimeout(() => {
-        navigate(`/songs/${response.data.id}`);
-      }, 1500);
+      setSong(response.data);
+      setEditedTitle(response.data.title);
+      setEditedLyrics(response.data.lyrics);
+      setToast({ message: "New version saved successfully", type: "success" });
     } catch (err) {
       console.error("Error saving new version:", err);
-      setToast({ message: "Error saving song", type: "error" });
+      setToast({ message: "Error saving new version", type: "error" });
     } finally {
       setIsSaving(false);
     }
   };
 
+  // -------------------------
+  // Update existing song (overwrite the current version)
+  // -------------------------
   const updateSong = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -322,11 +365,11 @@ export default function SongDetail() {
         tempo: song.tempo,
         time_signature: song.time_signature,
         lyrics: finalLyrics,
+        guitar_tab_id: attachedTab ? attachedTab.id : null, // attach tab if chosen
       });
+      // Update local state
+      setSong(response.data);
       setToast({ message: "Song updated successfully", type: "success" });
-      setTimeout(() => {
-        navigate(`/songs/${response.data.id}`);
-      }, 1500);
     } catch (err) {
       console.error("Error updating song:", err);
       setToast({ message: "Error updating song", type: "error" });
@@ -335,6 +378,9 @@ export default function SongDetail() {
     }
   };
 
+  // -------------------------
+  // Confirm & Delete Song
+  // -------------------------
   const handleDeleteSong = () => {
     setShowDeleteConfirm(true);
   };
@@ -355,6 +401,9 @@ export default function SongDetail() {
     }
   };
 
+  // -------------------------
+  // Transpose: select key
+  // -------------------------
   const handleKeyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const chosenKey = e.target.value;
     setTargetKey(chosenKey);
@@ -363,23 +412,31 @@ export default function SongDetail() {
     }
   };
 
+  // -------------------------
+  // Add a new lyric line
+  // -------------------------
   const addLine = () => {
     setEditedLyrics([...editedLyrics, { text: "", chords: [] }]);
   };
 
+  // -------------------------
+  // Render checks
+  // -------------------------
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
 
-  const displayLyrics = transposedLyrics || editedLyrics;
+  const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
   const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
+  const displayLyrics = transposedLyrics || editedLyrics;
 
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      <div className="flex-1 px-2 py-4 md:px-8 md:py-10 w-full">
+      <div className="flex-1 transition-all duration-300">
         <Header />
-        <Card className="bg-white w-full max-w-4xl mx-auto my-4 md:my-8 p-4 md:p-10">
-          {/* Title and artist */}
+        <div className="p-6">
+          {/* Title / Artist / Action Buttons */}
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
             <div className="text-left">
               {editMode ? (
@@ -390,9 +447,15 @@ export default function SongDetail() {
                   onChange={(e) => setEditedTitle(e.target.value)}
                 />
               ) : (
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">{song.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+                  {song.title}
+                </h1>
               )}
-              <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-4">By {song.artist}</p>
+              <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-4">
+                By {song.artist}
+              </p>
+
+              {/* Key / Tempo / Time */}
               <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
@@ -410,9 +473,8 @@ export default function SongDetail() {
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex flex-wrap gap-4 text-sm lg:text-base">
-              {/* Transposition controls */}
+              {/* Transpose Controls */}
               <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
                 <button
                   onClick={() => transposeSong({ direction: "up" })}
@@ -444,7 +506,7 @@ export default function SongDetail() {
                 </button>
               </div>
 
-              {/* Edit / Cancel Edit */}
+              {/* Toggle Edit / Cancel Edit */}
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
@@ -464,28 +526,26 @@ export default function SongDetail() {
                 </button>
               )}
 
-              {/* Save Version Button */}
+              {/* Save Changes (overwrite) */}
+              <button
+                onClick={updateSong}
+                disabled={isSaving}
+                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
+
+              {/* Save a new version */}
               <button
                 onClick={saveNewVersion}
                 disabled={isSaving}
-                className="flex items-center gap-1 bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
+                className="flex items-center gap-1 bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
               >
                 <Save className="h-4 w-4" />
-                {isSaving ? "Saving..." : "Save Version"}
+                Save Version
               </button>
 
-              {/* Update current song button */}
-              {editMode && (
-                <button
-                  onClick={updateSong}
-                  disabled={isSaving}
-                  className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </button>
-              )}
-
-              {/* Delete */}
+              {/* Delete Song */}
               <button
                 onClick={handleDeleteSong}
                 className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
@@ -493,10 +553,18 @@ export default function SongDetail() {
                 <Trash2 className="h-4 w-4" />
                 Delete
               </button>
+
+              {/* Attach Tab Button */}
+              <button
+                onClick={() => setShowTabSelectionModal(true)}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
+              >
+                Attach Guitar Tab
+              </button>
             </div>
           </div>
 
-          {/* Lyrics / Chords */}
+          {/* Lyrics */}
           <div className="space-y-6 mt-8">
             {displayLyrics.map((line, i) => (
               <ChordLine
@@ -525,10 +593,29 @@ export default function SongDetail() {
               </button>
             )}
           </div>
-        </Card>
+
+          {/* -------------------------------------- */}
+          {/* RESTORED: Display the attached tab data */}
+          {/* -------------------------------------- */}
+          {attachedTab && (
+            <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
+              <div className="space-y-4">
+                {attachedTab.tab_data && attachedTab.tab_data.lines ? (
+                  attachedTab.tab_data.lines.map((line: any, idx: number) => (
+                    <div key={idx} className="mb-4 text-2xl">
+                      <TabNotation tabData={line} editMode={false} />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-lg">No tab data available</p>
+                )}
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Confirm Delete Dialog */}
       {showDeleteConfirm && (
         <ConfirmationModal
           isOpen={showDeleteConfirm}
@@ -539,8 +626,51 @@ export default function SongDetail() {
         />
       )}
 
-      {/* Toast Notifications */}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {/* Toast messages */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
+
+      {/* -------------------------------------- */}
+      {/* RESTORED: Attach Guitar Tab Modal */}
+      {/* -------------------------------------- */}
+      {showTabSelectionModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4">Select a Guitar Tab</h2>
+            <div className="max-h-80 overflow-y-auto">
+              {availableTabs.length > 0 ? (
+                availableTabs.map((tab) => (
+                  <div
+                    key={tab.id}
+                    className="p-4 border-b cursor-pointer hover:bg-gray-100"
+                    onClick={() => {
+                      setAttachedTab(tab);
+                      setShowTabSelectionModal(false);
+                      // Once user chooses a tab, we call updateSong()
+                      // so that the song now references the new attached tab ID
+                      updateSong();
+                    }}
+                  >
+                    <h3 className="font-semibold">{tab.title}</h3>
+                    <p className="text-gray-600">{tab.artist}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No guitar tabs available</p>
+              )}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowTabSelectionModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
