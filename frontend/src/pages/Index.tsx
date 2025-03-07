@@ -95,12 +95,14 @@ const Index = () => {
       */}
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-        <Header />
+        
+                  <Header />
+                
         {/* 
           On small screens: no padding 
           On md+ screens: p-6 
         */}
-        <main className="p-0 md:p-6">
+        <main className=" p-6">
           {/* 
             1) Stats Section 
                - White card on all screens or adapt if you want it transparent on mobile 

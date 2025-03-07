@@ -171,12 +171,14 @@ export default function SongCreate() {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+    <div className="relative flex min-h-screen bg-white">
       <Sidebar />
 
       {/* Removed md:ml-64 to let the main content fill all space */}
-      <div className="flex-1 transition-all duration-300">
-        <Header />
+      <div className="flex-1 transition-all duration-300 ">
+        <div className="hidden md:block">
+                  <Header />
+                </div>
         <div className="p-6">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-md shadow">
             <h1 className="text-2xl font-bold mb-4">Create New Song</h1>

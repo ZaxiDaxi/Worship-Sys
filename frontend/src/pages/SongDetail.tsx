@@ -395,12 +395,15 @@ export default function SongDetail() {
     
     <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
-      <div className="flex-1 transition-all duration-300">
-        <Header />
+      <div className=" flex-1 transition-all duration-300">
+        <div className="hidden md:block">
+          <Header />
+        </div>
+        
         {/*
           p-0 on mobile, p-6 on md+ 
         */}
-        <div className="p-0 md:p-6">
+        <div className="p-0 md:p-6 bg-white" >
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
             <div className="text-left">
               {editMode ? (
@@ -420,7 +423,7 @@ export default function SongDetail() {
               </p>
 
               {/* Key / Tempo / Time */}
-              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
+              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl" >
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
                 </span>

@@ -127,11 +127,13 @@ const GuitarTabs: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+    <div className="relative flex min-h-screen bg-white">
       <Sidebar />
       {/* Removed md:ml-64 for consistent responsiveness */}
       <div className="flex-1 transition-all duration-300">
-        <Header />
+        <div className="hidden md:block">
+                  <Header />
+                </div>
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Guitar Tabs List</h2>

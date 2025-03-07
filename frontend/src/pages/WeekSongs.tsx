@@ -34,12 +34,14 @@ const WeekSongs = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+    <div className="relative flex min-h-screen bg-white">
       <Sidebar />
 
       {/* Removed md:ml-64 to avoid pushing content on larger screens */}
       <div className="flex-1 transition-all duration-300">
-        <Header />
+        <div className="hidden md:block">
+                  <Header />
+                </div>
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>

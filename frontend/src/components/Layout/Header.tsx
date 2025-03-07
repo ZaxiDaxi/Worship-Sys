@@ -25,10 +25,8 @@ export const Header: React.FC = () => {
       className="
         /* shadow on all screens */
         shadow-[0px_4px_4px_rgba(0,0,0,0.25)]
-
-        /* White on mobile, #EFF1F7 on md+ */
-        bg-white
-        md:bg-[#EFF1F7]
+        
+        bg-[#EFF1F7]
 
         flex
         w-full
@@ -49,7 +47,7 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Right side: hidden on mobile, visible on md+ */}
-      <div className="hidden md:flex items-stretch gap-[29px] font-medium">
+      <div className="flex items-stretch gap-[29px] font-medium">
         <div className="flex items-stretch gap-2 text-2xl">
           <img
             loading="lazy"

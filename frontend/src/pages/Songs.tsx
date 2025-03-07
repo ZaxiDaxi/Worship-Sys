@@ -94,11 +94,13 @@ const Songs: React.FC = () => {
 
   return (
    
-    <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
+    <div className="relative flex min-h-screen bg-white md:bg-white">
       <Sidebar />
 
       <div className="flex-1 transition-all duration-300">
-        <Header />
+        <div className="hidden md:block">
+                  <Header />
+                </div>
 
         {/*
           Remove padding on mobile: p-0
@@ -124,7 +126,7 @@ const Songs: React.FC = () => {
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center"
+                className="px-4 py-2 bg-white lg:hover:bg-gray-300 text-grey-600  items-center justify-center"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -139,7 +141,7 @@ const Songs: React.FC = () => {
                 {songs.map((song) => (
                   <Card
                     key={song.id}
-                    className="p-4 flex justify-between items-center hover:bg-gray-50 cursor-pointer"
+                    className="p-4 flex justify-between items-center hover:bg-gray-50 cursor-pointer bg-white" /*change song background color*/
                     onClick={() => handleSongClick(song.id)}
                   >
                     <div className="flex items-center space-x-4 min-w-0">
