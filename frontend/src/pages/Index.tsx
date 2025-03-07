@@ -88,29 +88,73 @@ const Index = () => {
   ];
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
-      {/* Sidebar pinned on the left */}
+    <div className="relative flex min-h-screen bg-inherit">
+      {/* 
+        Because Layout.tsx already sets background color,
+        we can just keep "bg-inherit" or remove it altogether.
+      */}
       <Sidebar />
-
-      {/* Main content: remove lg:ml-64 so it doesn't get forced to the right */}
       <div className="flex-1 transition-all duration-300">
         <Header />
-        <main className="px-6 py-6">
-          {/* Overview Stats Section */}
-          <section className="shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] bg-white flex flex-col text-2xl text-black text-center mx-0 md:mx-6 mt-6 px-6 py-8 rounded-[15px]">
+        {/* 
+          On small screens: no padding 
+          On md+ screens: p-6 
+        */}
+        <main className="p-0 md:p-6">
+          {/* 
+            1) Stats Section 
+               - White card on all screens or adapt if you want it transparent on mobile 
+          */}
+          <section
+            className="
+              shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)]
+              bg-white
+              flex
+              flex-col
+              text-2xl
+              text-black
+              text-center
+              m-0
+              md:mx-6
+              mt-0
+              md:mt-6
+              p-4
+              md:p-8
+              rounded-none
+              md:rounded-[15px]
+            "
+          >
             <h1 className="font-semibold">Welcome {profile.user || "User"}</h1>
-            <div className="flex w-full max-w-[1209px] items-stretch gap-6 font-medium whitespace-nowrap flex-wrap mt-8 justify-center mx-auto">
+            <div className="flex w-full max-w-[1209px] items-stretch gap-6 font-medium flex-wrap mt-8 justify-center mx-auto">
               {stats.map((stat, index) => (
                 <StatCard key={index} {...stat} />
               ))}
             </div>
           </section>
 
-          {/* Profile + PersonalDetails Section */}
-          <section className="mt-6 mx-0 md:mx-6">
+          {/* 
+            2) Profile + PersonalDetails 
+               - Transparent on mobile, white on md+ 
+          */}
+          <section
+            className="
+              mt-6
+              mx-0
+              md:mx-6
+
+              bg-transparent
+              md:bg-white
+
+              shadow-none
+              md:shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)]
+
+              p-0
+              md:p-6
+              rounded-none
+              md:rounded-[15px]
+            "
+          >
             <div className="flex flex-col lg:flex-row gap-6">
-              {/* Hide user profile on mobile if desired:
-                  className="hidden md:block" for the container */}
               <div className="w-full lg:w-[41%]">
                 <ProfileSection profile={profile} />
               </div>

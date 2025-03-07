@@ -56,7 +56,6 @@ function splitLineByWordsWithIndex(text: string) {
 
 // -------------------------
 // ChordLine Component
-// (used in each lyric line)
 // -------------------------
 const ChordLine: React.FC<{
   line: LyricLine;
@@ -109,104 +108,101 @@ const ChordLine: React.FC<{
     onChange?.(text, newChords);
   };
 
-  // ---------------------------------------
-  // Editable lyric line (input + chord list)
-  // ---------------------------------------
-  if (editable) {
+  // Read-only mode (the chords above words)
+  if (!editable) {
+    const tokens = splitLineByWordsWithIndex(text);
     return (
-      <div className="space-y-2 relative">
-        <div className="max-w-full overflow-x-auto">
-          <div className="relative w-full font-mono whitespace-pre text-sm md:text-base lg:text-lg">
-            <div className="relative" style={{ minHeight: "20px" }}>
-              {chords.map((c, idx) => (
-                <span
-                  key={idx}
-                  className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
-                  style={{ left: `${c.position * 8}px`, top: "0px" }}
-                >
-                  {c.chord}
-                </span>
-              ))}
-            </div>
-            <input
-              type="text"
-              className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base lg:text-lg"
-              value={text}
-              onChange={handleTextChange}
-              maxLength={300}
-            />
-          </div>
-        </div>
-        {/* Chord editor (the list of chord inputs) */}
-        <div className="flex flex-col mt-2 space-y-2">
-          {chords.map((c, idx) => (
-            <div key={idx} className="flex gap-2">
-              <input
-                type="text"
-                className="border p-1 rounded w-24 text-sm md:text-base lg:text-lg"
-                value={c.chord}
-                onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
-              />
-              <input
-                type="number"
-                className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
-                value={c.position}
-                onChange={(e) => handleChordChange(idx, "position", e.target.value)}
-              />
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addChord}
-            className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
-          >
-            + Add Chord
-          </button>
-        </div>
+      <div
+        className="font-mono text-sm md:text-base lg:text-lg leading-[2.5] md:leading-[3.4] flex flex-wrap"
+        style={{ marginBottom: "0.5rem" }}
+      >
+        {tokens.map((tokenObj, i) => {
+          const tokenChords = chords.filter(
+            (c) =>
+              c.position >= tokenObj.start &&
+              c.position < tokenObj.start + tokenObj.token.length
+          );
+          return (
+            <span
+              key={i}
+              className="relative inline-block whitespace-pre"
+              style={{ marginRight: "4px" }}
+            >
+              {tokenChords.map((c, chordIdx) => {
+                const relIndex = c.position - tokenObj.start;
+                return (
+                  <span
+                    key={chordIdx}
+                    className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
+                    style={{
+                      left: `${relIndex}ch`,
+                      top: isMobile ? "-0.7em" : "-1.5em",
+                    }}
+                  >
+                    {c.chord}
+                  </span>
+                );
+              })}
+              <span>{tokenObj.token}</span>
+            </span>
+          );
+        })}
       </div>
     );
   }
 
-  // ---------------------------------------
-  // Read-only mode (the chords above words)
-  // ---------------------------------------
-  const tokens = splitLineByWordsWithIndex(text);
+  // Editable lyric line
   return (
-    <div
-      className="font-mono text-sm md:text-base lg:text-lg leading-[2.5] md:leading-[3.4] flex flex-wrap"
-      style={{ marginBottom: "0.5rem" }}
-    >
-      {tokens.map((tokenObj, i) => {
-        const tokenChords = chords.filter(
-          (c) =>
-            c.position >= tokenObj.start &&
-            c.position < tokenObj.start + tokenObj.token.length
-        );
-        return (
-          <span
-            key={i}
-            className="relative inline-block whitespace-pre"
-            style={{ marginRight: "4px" }}
-          >
-            {tokenChords.map((c, chordIdx) => {
-              const relIndex = c.position - tokenObj.start;
-              return (
-                <span
-                  key={chordIdx}
-                  className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
-                  style={{
-                    left: `${relIndex}ch`,
-                    top: isMobile ? "-0.7em" : "-1.5em",
-                  }}
-                >
-                  {c.chord}
-                </span>
-              );
-            })}
-            <span>{tokenObj.token}</span>
-          </span>
-        );
-      })}
+    <div className="space-y-2 relative">
+      <div className="max-w-full overflow-x-auto">
+        <div className="relative w-full font-mono whitespace-pre text-sm md:text-base lg:text-lg">
+          <div className="relative" style={{ minHeight: "20px" }}>
+            {chords.map((c, idx) => (
+              <span
+                key={idx}
+                className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
+                style={{ left: `${c.position * 8}px`, top: "0px" }}
+              >
+                {c.chord}
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base lg:text-lg"
+            value={text}
+            onChange={handleTextChange}
+            maxLength={300}
+          />
+        </div>
+      </div>
+
+      {/* Chord editor (the list of chord inputs) */}
+      <div className="flex flex-col mt-2 space-y-2">
+        {chords.map((c, idx) => (
+          <div key={idx} className="flex gap-2">
+            <input
+              type="text"
+              className="border p-1 rounded w-24 text-sm md:text-base lg:text-lg"
+              value={c.chord}
+              onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
+            />
+            <input
+              type="number"
+              className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
+              value={c.position}
+              onChange={(e) => handleChordChange(idx, "position", e.target.value)}
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addChord}
+          className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
+        >
+          + Add Chord
+        </button>
+      </div>
     </div>
   );
 };
@@ -230,20 +226,13 @@ export default function SongDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(
-    null
-  );
+  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  // -------------------------
   // ADDED: States to handle attaching a guitar tab
-  // -------------------------
-  const [attachedTab, setAttachedTab] = useState<any>(null);         // the chosen tab
+  const [attachedTab, setAttachedTab] = useState<any>(null);
   const [showTabSelectionModal, setShowTabSelectionModal] = useState(false);
   const [availableTabs, setAvailableTabs] = useState<any[]>([]);
 
-  // -------------------------
-  // Fetch Song Data
-  // -------------------------
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get(`songs/${id}/`)
@@ -275,14 +264,11 @@ export default function SongDetail() {
       });
   }, [id, navigate]);
 
-  // -------------------------
   // If user wants to attach a tab, fetch a list of available tabs
-  // -------------------------
   useEffect(() => {
     if (showTabSelectionModal) {
       AxiosInstance.get("guitartabs/")
         .then((response) => {
-          // The endpoint might return guitar tabs in different ways, adapt as needed:
           setAvailableTabs(response.data.guitartabs || response.data);
         })
         .catch((error) => {
@@ -291,18 +277,12 @@ export default function SongDetail() {
     }
   }, [showTabSelectionModal]);
 
-  // -------------------------
-  // Handle lyric text changes
-  // -------------------------
   const handleLyricChange = (index: number, text: string, chords: Chord[]) => {
     const updated = [...editedLyrics];
     updated[index] = { text, chords };
     setEditedLyrics(updated);
   };
 
-  // -------------------------
-  // Transpose logic
-  // -------------------------
   const transposeSong = async (payload: { direction?: "up" | "down"; target_key?: string }) => {
     if (!song) return;
     if (!payload.direction && !payload.target_key) return;
@@ -319,9 +299,6 @@ export default function SongDetail() {
     }
   };
 
-  // -------------------------
-  // Save a brand new version
-  // -------------------------
   const saveNewVersion = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -335,7 +312,7 @@ export default function SongDetail() {
         tempo: song.tempo,
         time_signature: song.time_signature,
         lyrics: finalLyrics,
-        guitar_tab_id: attachedTab ? attachedTab.id : null, // attach tab if chosen
+        guitar_tab_id: attachedTab ? attachedTab.id : null,
       });
       setSong(response.data);
       setEditedTitle(response.data.title);
@@ -349,9 +326,6 @@ export default function SongDetail() {
     }
   };
 
-  // -------------------------
-  // Update existing song (overwrite the current version)
-  // -------------------------
   const updateSong = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -365,9 +339,8 @@ export default function SongDetail() {
         tempo: song.tempo,
         time_signature: song.time_signature,
         lyrics: finalLyrics,
-        guitar_tab_id: attachedTab ? attachedTab.id : null, // attach tab if chosen
+        guitar_tab_id: attachedTab ? attachedTab.id : null,
       });
-      // Update local state
       setSong(response.data);
       setToast({ message: "Song updated successfully", type: "success" });
     } catch (err) {
@@ -378,9 +351,6 @@ export default function SongDetail() {
     }
   };
 
-  // -------------------------
-  // Confirm & Delete Song
-  // -------------------------
   const handleDeleteSong = () => {
     setShowDeleteConfirm(true);
   };
@@ -401,9 +371,6 @@ export default function SongDetail() {
     }
   };
 
-  // -------------------------
-  // Transpose: select key
-  // -------------------------
   const handleKeyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const chosenKey = e.target.value;
     setTargetKey(chosenKey);
@@ -412,16 +379,10 @@ export default function SongDetail() {
     }
   };
 
-  // -------------------------
-  // Add a new lyric line
-  // -------------------------
   const addLine = () => {
     setEditedLyrics([...editedLyrics, { text: "", chords: [] }]);
   };
 
-  // -------------------------
-  // Render checks
-  // -------------------------
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
 
@@ -431,12 +392,15 @@ export default function SongDetail() {
   const displayLyrics = transposedLyrics || editedLyrics;
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+    
+    <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
         <Header />
-        <div className="p-6">
-          {/* Title / Artist / Action Buttons */}
+        {/*
+          p-0 on mobile, p-6 on md+ 
+        */}
+        <div className="p-0 md:p-6">
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
             <div className="text-left">
               {editMode ? (
@@ -594,9 +558,7 @@ export default function SongDetail() {
             )}
           </div>
 
-          {/* -------------------------------------- */}
-          {/* RESTORED: Display the attached tab data */}
-          {/* -------------------------------------- */}
+          {/* Attached Tab (if any) */}
           {attachedTab && (
             <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
               <div className="space-y-4">
@@ -628,12 +590,14 @@ export default function SongDetail() {
 
       {/* Toast messages */}
       {toast && (
-        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
 
-      {/* -------------------------------------- */}
-      {/* RESTORED: Attach Guitar Tab Modal */}
-      {/* -------------------------------------- */}
+      {/* Attach Guitar Tab Modal */}
       {showTabSelectionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
@@ -647,8 +611,7 @@ export default function SongDetail() {
                     onClick={() => {
                       setAttachedTab(tab);
                       setShowTabSelectionModal(false);
-                      // Once user chooses a tab, we call updateSong()
-                      // so that the song now references the new attached tab ID
+                      // Once user chooses a tab, update the song so it references the new attached tab ID
                       updateSong();
                     }}
                   >

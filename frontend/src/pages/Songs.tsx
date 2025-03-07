@@ -28,7 +28,10 @@ const Songs: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
 
   // If user is searching, set a large pageSize.
   const pageSize = searchQuery ? 1000 : defaultPageSize;
@@ -90,14 +93,21 @@ const Songs: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+   
+    <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
-      {/* Removed md:ml-64 to use full available width */}
+
       <div className="flex-1 transition-all duration-300">
         <Header />
-        <div className="p-6">
+
+        {/*
+          Remove padding on mobile: p-0
+          Restore original padding on md+: md:p-6
+        */}
+        <div className="p-0 md:p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>
+
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -120,6 +130,7 @@ const Songs: React.FC = () => {
               </button>
             </form>
           </div>
+
           {loading ? (
             <p>Loading songs...</p>
           ) : (
@@ -167,6 +178,7 @@ const Songs: React.FC = () => {
                   </Card>
                 ))}
               </div>
+
               {!searchQuery && (
                 <div className="flex justify-center items-center mt-6 space-x-4">
                   <button
@@ -192,6 +204,7 @@ const Songs: React.FC = () => {
           )}
         </div>
       </div>
+
       {showDeleteConfirm && (
         <ConfirmationModal
           isOpen={showDeleteConfirm}
@@ -201,7 +214,14 @@ const Songs: React.FC = () => {
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

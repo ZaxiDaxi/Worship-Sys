@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 
-export const Header = () => {
+export const Header: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -21,13 +21,34 @@ export const Header = () => {
   };
 
   return (
-    <header className="shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] bg-[#EFF1F7] flex w-full items-stretch gap-5 text-black whitespace-nowrap text-center flex-wrap justify-between px-7 py-[15px]">
-      {/* Left side (header title/logo/etc.) */}
+    <header
+      className="
+        /* shadow on all screens */
+        shadow-[0px_4px_4px_rgba(0,0,0,0.25)]
+
+        /* White on mobile, #EFF1F7 on md+ */
+        bg-white
+        md:bg-[#EFF1F7]
+
+        flex
+        w-full
+        items-stretch
+        gap-5
+        text-black
+        whitespace-nowrap
+        text-center
+        flex-wrap
+        justify-between
+        px-7
+        py-[15px]
+      "
+    >
+      {/* Left side (logo/title) */}
       <div className="flex items-stretch gap-[18px] text-2xl font-semibold my-auto">
-        {/* If you want a header title or logo, you can place it here */}
+        {/* If you have a header title or logo, place it here */}
       </div>
 
-      {/* Right side: hidden on mobile, visible at md+ */}
+      {/* Right side: hidden on mobile, visible on md+ */}
       <div className="hidden md:flex items-stretch gap-[29px] font-medium">
         <div className="flex items-stretch gap-2 text-2xl">
           <img
@@ -38,7 +59,6 @@ export const Header = () => {
           />
           <span className="my-auto">john</span>
         </div>
-
         <button
           onClick={handleLogout}
           className="bg-[#16BBE5] text-xl my-auto px-[22px] py-[9px] rounded-[5px]"
