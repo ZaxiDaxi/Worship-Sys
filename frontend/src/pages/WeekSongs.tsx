@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { Header } from "@/components/Layout/Header";
 import { Plus, Trash2 } from "lucide-react";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { IconButton } from "@mui/material";
 
 interface Song {
   id: number;
@@ -45,13 +47,11 @@ const WeekSongs = () => {
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
-            <button
-              onClick={handleEditSongs}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-            >
-              <Plus className="h-5 w-5" />
-              {weekSongs.length === 0 ? "Select Songs" : "Edit Week Songs"}
-            </button>
+            <IconButton onClick={handleEditSongs} ><AddCircleIcon sx={{ color: "black", width: 40, height: 40 }}/>
+              
+            </IconButton>
+              
+            
           </div>
 
           {weekSongs.length > 0 ? (

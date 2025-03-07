@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
-import { Header } from "@/components/Layout/Header"; // Added global Header
+import { Header } from "@/components/Layout/Header"; // Global Header
 
 interface Song {
   id: number;
@@ -48,11 +48,13 @@ const SelectWeekSongs = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen bg-[#EFF1F7]">
+    <div className="relative flex min-h-screen bg-white">
       <Sidebar />
-      <div className="flex-1 transition-all duration-300 md:ml-64">
-        <Header /> {/* Global Header */}
-        <div className="p-6">
+      <div className="flex-1 transition-all duration-300">
+        <div className="hidden md:block">
+          <Header />
+        </div>
+        <div className="p-0 md:p-6">
           <h2 className="text-2xl font-bold mb-6">Select up to 4 Songs for this Week</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allSongs.map((song) => (

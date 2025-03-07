@@ -126,7 +126,7 @@ const Songs: React.FC = () => {
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-white lg:hover:bg-gray-300 text-grey-600  items-center justify-center"
+                className="px-4 py-2 bg-white text-grey-600  items-center justify-center"
               >
                 <Search className="h-5 w-5" />
               </button>

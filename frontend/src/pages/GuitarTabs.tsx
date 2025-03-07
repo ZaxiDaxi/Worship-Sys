@@ -19,17 +19,31 @@ interface GuitarTab {
 
 const GuitarTabs: React.FC = () => {
   const navigate = useNavigate();
+
+  // State for the guitar tabs
   const [guitarTabs, setGuitarTabs] = useState<GuitarTab[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // State for total items, current page, page size, etc.
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const defaultPageSize = 5;
+
+  // State for searching
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // State for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedTabId, setSelectedTabId] = useState<number | null>(null);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
+  // State for toast notifications
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
+
+  // State for creating a new guitar tab
   const [newTabData, setNewTabData] = useState({
     title: "",
     artist: "",
@@ -38,8 +52,10 @@ const GuitarTabs: React.FC = () => {
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+  // If user is searching, use a large pageSize
   const pageSize = searchQuery ? 1000 : defaultPageSize;
 
+  // Fetch guitar tabs from the backend
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get("guitartabs/", {
@@ -50,8 +66,19 @@ const GuitarTabs: React.FC = () => {
       },
     })
       .then((response) => {
-        setGuitarTabs(response.data.guitartabs || response.data);
-        setTotal(response.data.total || response.data.length);
+        // Fallback approach for different possible response shapes:
+        // 1) { guitartabs: [...], total: number }
+        // 2) [ ... ] (just an array of tabs)
+        const data = response.data;
+
+        // If data is an array, use it directly. Otherwise, use data.guitartabs or []
+        const tabs = Array.isArray(data) ? data : data.guitartabs || [];
+
+        // If data.total exists, use it. Otherwise, if data is an array, use data.length
+        const totalItems = data.total ?? (Array.isArray(data) ? data.length : 0);
+
+        setGuitarTabs(tabs);
+        setTotal(totalItems);
         setLoading(false);
       })
       .catch((error) => {
@@ -60,16 +87,20 @@ const GuitarTabs: React.FC = () => {
       });
   }, [currentPage, searchQuery, pageSize]);
 
+  // Reset to page 1 whenever searchQuery changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
 
+  // Calculate total pages based on the defaultPageSize
   const totalPages = Math.ceil(total / defaultPageSize);
 
+  // Handle edit
   const handleEditTab = (tabId: number) => {
     navigate(`/guitar-tabs/${tabId}`);
   };
 
+  // Handle delete
   const handleDeleteClick = (tabId: number) => {
     setSelectedTabId(tabId);
     setShowDeleteConfirm(true);
@@ -79,7 +110,7 @@ const GuitarTabs: React.FC = () => {
     if (selectedTabId === null) return;
     try {
       await AxiosInstance.delete(`guitartabs/${selectedTabId}/`);
-      setGuitarTabs(guitarTabs.filter((tab) => tab.id !== selectedTabId));
+      setGuitarTabs((prev) => prev.filter((tab) => tab.id !== selectedTabId));
       setToast({ message: "Guitar tab deleted successfully", type: "success" });
       setShowDeleteConfirm(false);
       setSelectedTabId(null);
@@ -91,10 +122,12 @@ const GuitarTabs: React.FC = () => {
     }
   };
 
+  // Handle click on a tab (navigate to detail)
   const handleTabClick = (tabId: number) => {
     navigate(`/guitar-tabs/${tabId}`);
   };
 
+  // Handle create
   const handleCreateTab = async () => {
     const payload = {
       ...newTabData,
@@ -111,7 +144,7 @@ const GuitarTabs: React.FC = () => {
     };
     try {
       const response = await AxiosInstance.post("guitartabs/create/", payload);
-      setGuitarTabs([...guitarTabs, response.data]);
+      setGuitarTabs((prev) => [...prev, response.data]);
       setToast({ message: "Guitar tab created successfully", type: "success" });
       setShowCreateModal(false);
       setNewTabData({
@@ -129,14 +162,15 @@ const GuitarTabs: React.FC = () => {
   return (
     <div className="relative flex min-h-screen bg-white">
       <Sidebar />
-      {/* Removed md:ml-64 for consistent responsiveness */}
       <div className="flex-1 transition-all duration-300">
         <div className="hidden md:block">
-                  <Header />
-                </div>
+          <Header />
+        </div>
         <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Guitar Tabs List</h2>
+
+            {/* Search form (matches Songs.tsx) */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -153,12 +187,13 @@ const GuitarTabs: React.FC = () => {
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center"
+                className="px-4 py-2 bg-white text-grey-600 items-center justify-center"
               >
                 <Search className="h-5 w-5" />
               </button>
             </form>
           </div>
+
           {loading ? (
             <p>Loading guitar tabs...</p>
           ) : (
@@ -175,8 +210,13 @@ const GuitarTabs: React.FC = () => {
                         <div className="min-w-0">
                           <h3 className="font-semibold truncate">{tab.title}</h3>
                           <p className="text-gray-600 truncate">{tab.artist}</p>
-                          {tab.key && <p className="text-gray-600 truncate">Key: {tab.key}</p>}
-                          {tab.tempo && <p className="text-gray-600 truncate">Tempo: {tab.tempo}</p>}
+                          {(tab.key || tab.tempo) && (
+                            <p className="text-gray-500 text-sm mt-1">
+                              {tab.key && <span>Key: {tab.key}</span>}
+                              {tab.key && tab.tempo && " | "}
+                              {tab.tempo && <span>Tempo: {tab.tempo}</span>}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -207,7 +247,9 @@ const GuitarTabs: React.FC = () => {
                   </div>
                 )}
               </div>
-              {(!searchQuery && totalPages > 1) && (
+
+              {/* Pagination only if NOT searching */}
+              {!searchQuery && (
                 <div className="flex justify-center items-center mt-6 space-x-4">
                   <button
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
@@ -228,6 +270,7 @@ const GuitarTabs: React.FC = () => {
                   </button>
                 </div>
               )}
+
               <div className="mt-6">
                 <button
                   onClick={() => setShowCreateModal(true)}
@@ -240,6 +283,7 @@ const GuitarTabs: React.FC = () => {
           )}
         </div>
       </div>
+
       {showDeleteConfirm && (
         <ConfirmationModal
           isOpen={showDeleteConfirm}
@@ -249,7 +293,15 @@ const GuitarTabs: React.FC = () => {
           onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       {showCreateModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">

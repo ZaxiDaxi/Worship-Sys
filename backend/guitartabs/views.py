@@ -1,14 +1,42 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 from .models import GuitarTab
 from .serializers import GuitarTabSerializer
 
 @api_view(['GET'])
 def list_guitartabs(request):
-    tabs = GuitarTab.objects.all().order_by('id')
+    # Get search query and pagination parameters from the request
+    search = request.query_params.get("search", "")
+    try:
+        page = int(request.query_params.get("page", 1))
+    except ValueError:
+        page = 1
+    try:
+        page_size = int(request.query_params.get("page_size", 5))
+    except ValueError:
+        page_size = 5
+
+    # Filter by title or artist if a search query is provided
+    if search:
+        tabs_qs = GuitarTab.objects.filter(
+            Q(title__icontains=search) | Q(artist__icontains=search)
+        ).order_by('id')
+    else:
+        tabs_qs = GuitarTab.objects.all().order_by('id')
+
+    # Calculate total count before paginating
+    total = tabs_qs.count()
+
+    # Apply pagination by slicing the queryset
+    start = (page - 1) * page_size
+    end = start + page_size
+    tabs = tabs_qs[start:end]
     serializer = GuitarTabSerializer(tabs, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # Return a JSON object with both the guitar tabs and total count
+    return Response({"guitartabs": serializer.data, "total": total}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def create_guitartab(request):
@@ -20,12 +48,6 @@ def create_guitartab(request):
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def guitartab_detail(request, tab_id):
-    """
-    Single endpoint that:
-      - GET:  Retrieves a guitar tab
-      - PUT/PATCH: Updates a guitar tab
-      - DELETE: Removes a guitar tab
-    """
     try:
         tab = GuitarTab.objects.get(id=tab_id)
     except GuitarTab.DoesNotExist:

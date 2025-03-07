@@ -3,6 +3,13 @@ import AxiosInstance from "@/components/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header";
+import { Trash2 } from "lucide-react";
+import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { IconButton } from "@mui/material";
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
 interface Chord {
   chord: string;
@@ -92,26 +99,45 @@ const ChordLineCreator: React.FC<{
               type="number"
               className="border p-1 rounded w-20"
               value={chordObj.position}
-              onChange={(e) => handleChordChange(idx, "position", e.target.value)}
+              onChange={(e) =>
+                handleChordChange(idx, "position", e.target.value)
+              }
             />
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addChord}
-          className="bg-purple-500 text-white px-3 py-1 rounded"
-        >
-          + Add Chord
-        </button>
-      </div>
 
-      <button
-        type="button"
-        onClick={() => onRemove(index)}
-        className="mt-2 text-sm text-red-500 underline"
-      >
-        Remove this line
-      </button>
+<Button
+  variant="contained"
+  startIcon={<AddCircleOutlineIcon />}
+  onClick={addChord}
+  sx={{
+    backgroundColor: "#1976D2", // Darker blue to meet contrast
+    color: "#FFFFFF",
+    "&:hover": {
+      backgroundColor: "#1565C0", // Even darker blue
+    },
+  }}
+>
+  Add Chord
+</Button>
+
+<Button
+  variant="outlined"
+  startIcon={<DeleteIcon />}
+  onClick={() => onRemove(index)}
+  sx={{
+    color: "#B71C1C", // Darker red for contrast
+    borderColor: "#B71C1C",
+    "&:hover": {
+      backgroundColor: "#FFEBEE", // Light red for better contrast
+    },
+  }}
+>
+  Delete
+</Button>
+
+
+      </div>
     </div>
   );
 };
@@ -177,8 +203,8 @@ export default function SongCreate() {
       {/* Removed md:ml-64 to let the main content fill all space */}
       <div className="flex-1 transition-all duration-300 ">
         <div className="hidden md:block">
-                  <Header />
-                </div>
+          <Header />
+        </div>
         <div className="p-6">
           <div className="max-w-3xl mx-auto bg-white p-6 rounded-md shadow">
             <h1 className="text-2xl font-bold mb-4">Create New Song</h1>
@@ -225,7 +251,9 @@ export default function SongCreate() {
               </div>
 
               <div>
-                <label className="block mb-1 font-semibold">Time Signature</label>
+                <label className="block mb-1 font-semibold">
+                  Time Signature
+                </label>
                 <input
                   type="text"
                   className="border border-gray-300 p-2 rounded w-full"
@@ -235,7 +263,9 @@ export default function SongCreate() {
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold mb-2 mt-6">Lyrics & Chords</h2>
+                <h2 className="text-lg font-semibold mb-2 mt-6">
+                  Lyrics & Chords
+                </h2>
                 {lines.map((line, i) => (
                   <ChordLineCreator
                     key={i}
@@ -245,27 +275,64 @@ export default function SongCreate() {
                     onRemove={handleRemoveLine}
                   />
                 ))}
-                <button
-                  type="button"
-                  onClick={addLine}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  + Add Line
-                </button>
+        <Button
+  variant="contained"
+  startIcon={<AddCircleOutlineIcon />}
+  onClick={addLine}
+  sx={{
+    backgroundColor: "#1976D2",
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    padding: "6px 16px",
+    fontSize: "1rem",
+    borderRadius: "8px",
+    transition: "background-color 0.2s ease-in-out",
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Soft shadow
+    marginTop: "8px",
+    "&:hover": {
+      backgroundColor: "#1565C0",
+      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.15)", // Slightly stronger shadow
+    },
+  }}
+>
+  Add Line
+</Button>
               </div>
 
-              <button
-                type="submit"
-                className="bg-green-600 text-white px-6 py-2 rounded font-semibold"
-              >
-                Create Song
-              </button>
+              <Button
+  variant="contained"
+  startIcon={<MusicNoteIcon />}
+  sx={{
+    backgroundColor: "#2E7D32", // Dark green for contrast
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: "1.1rem",
+    padding: "8px 18px", // More spacing to make it stand out
+    borderRadius: "8px", // Modern rounded corners
+    transition: "background-color 0.2s ease-in-out",
+    type: "submit",
+    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Soft shadow
+    marginTop: "12px",
+    "&:hover": {
+      backgroundColor: "#1B5E20", // Slightly darker green on hover
+      boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)", // More prominent hover shadow
+    },
+  }}
+>
+  Create Song
+</Button>
             </form>
           </div>
         </div>
       </div>
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
