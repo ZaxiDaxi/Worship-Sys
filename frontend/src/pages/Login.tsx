@@ -5,7 +5,7 @@ import AxiosInstance from '@/components/axios'; // Import your custom Axios inst
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,7 +26,7 @@ const Login: React.FC = () => {
         username,
         password,
       });
-      
+
       // Extract tokens from response
       const { access, refresh } = response.data;
 
@@ -44,8 +44,8 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form 
-        onSubmit={handleLogin} 
+      <form
+        onSubmit={handleLogin}
         className="bg-white p-6 rounded shadow-md w-full max-w-sm"
       >
         <h1 className="text-2xl font-bold mb-4">Login</h1>
@@ -74,8 +74,8 @@ const Login: React.FC = () => {
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
           Login

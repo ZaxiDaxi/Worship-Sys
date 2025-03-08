@@ -180,12 +180,12 @@ const GuitarTabs: React.FC = () => {
                   backgroundColor: "#2E7D32",
                   color: "#FFFFFF",
                   fontWeight: "bold",
-                  fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.3rem" },
-                  padding: { xs: "4px 8px", sm: "4px 8px", md: "6px 12px" },
+                  fontSize: { xs: "1.1rem", sm: "1rem", md: "1rem" },
+                  padding: { xs: "4px 8px", sm: "6px 8px", md: "6px 8px" },
                   borderRadius: "8px",
                   transition: "background-color 0.2s ease-in-out",
                   boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  marginTop: { xs: "12px", md: "12px" },
+                  marginTop: { xs: "2px", s: '2px', md: "4px" },
                   "&:hover": {
                     backgroundColor: "#1B5E20",
                     boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)",
@@ -200,22 +200,23 @@ const GuitarTabs: React.FC = () => {
                 e.preventDefault();
                 setSearchQuery(searchInput);
               }}
-              className="flex items-center w-40 sm:w-48 md:w-full md:max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mt-2"
+              className="flex items-center max-w-md bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
             >
               <input
                 type="text"
                 placeholder="Search guitar tabs..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full px-2 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 focus:outline-none"
+                className="w-full px-4 py-2 focus:outline-none"
               />
               <button
                 type="submit"
-                className="px-2 py-1 md:px-4 md:py-2 bg-white text-gray-600"
+                className="px-4 py-2 bg-white  text-grey flex items-center justify-center"
               >
-                <Search className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <Search className="h-5 w-5" />
               </button>
             </form>
+
           </div>
 
           {loading ? (

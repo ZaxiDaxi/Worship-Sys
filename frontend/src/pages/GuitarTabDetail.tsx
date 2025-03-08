@@ -89,17 +89,17 @@ export default function GuitarTabDetail() {
         const loadedLines = data.tab_data?.lines?.length
           ? data.tab_data.lines
           : [
-              {
-                strings: [
-                  { string: 1, notes: [] },
-                  { string: 2, notes: [] },
-                  { string: 3, notes: [] },
-                  { string: 4, notes: [] },
-                  { string: 5, notes: [] },
-                  { string: 6, notes: [] },
-                ],
-              },
-            ];
+            {
+              strings: [
+                { string: 1, notes: [] },
+                { string: 2, notes: [] },
+                { string: 3, notes: [] },
+                { string: 4, notes: [] },
+                { string: 5, notes: [] },
+                { string: 6, notes: [] },
+              ],
+            },
+          ];
         setLines(loadedLines);
         const inputs = loadedLines.map((line) =>
           line.strings.map(() => ({ fret: "", position: "" }))
@@ -381,25 +381,22 @@ export default function GuitarTabDetail() {
                 <p className="font-medium text-sm">Select Technique:</p>
                 <button
                   onClick={() => setTechniqueType("slide")}
-                  className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "slide" ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
+                  className={`px-2 py-1 rounded text-sm ${techniqueType === "slide" ? "bg-blue-500 text-white" : "bg-gray-200"
+                    }`}
                 >
                   Slide
                 </button>
                 <button
                   onClick={() => setTechniqueType("hammerOn")}
-                  className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "hammerOn" ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
+                  className={`px-2 py-1 rounded text-sm ${techniqueType === "hammerOn" ? "bg-blue-500 text-white" : "bg-gray-200"
+                    }`}
                 >
                   H.O.
                 </button>
                 <button
                   onClick={() => setTechniqueType("pullOff")}
-                  className={`px-2 py-1 rounded text-sm ${
-                    techniqueType === "pullOff" ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
+                  className={`px-2 py-1 rounded text-sm ${techniqueType === "pullOff" ? "bg-blue-500 text-white" : "bg-gray-200"
+                    }`}
                 >
                   P.O.
                 </button>

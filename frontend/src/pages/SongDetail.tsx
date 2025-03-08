@@ -558,8 +558,8 @@ export default function SongDetail() {
           </div>
 
           {/* Lyrics */}
-          <div className="flex flex-col md:flex-row gap-6 mt-8">
-            <div className="md:w-1/2">
+          <div className="flex flex-col gap-6 mt-8">
+            <div className="w-full">
               <div className="space-y-6 mt-8">
                 {displayLyrics.map((line, i) => (
                   <ChordLine
@@ -598,7 +598,7 @@ export default function SongDetail() {
             </div>
 
             {/* Attached Tab (if any) */}
-            <div className="md:w-1/2">
+            <div className="w-full max-w-5xl mx-auto border border-gray-200 p-4 rounded bg-white flex items-center justify-center">
               {attachedTab && (
                 <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
                   <div className="space-y-4">

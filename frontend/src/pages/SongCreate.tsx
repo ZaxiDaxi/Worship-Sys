@@ -105,35 +105,35 @@ const ChordLineCreator: React.FC<{
           </div>
         ))}
 
-<Button
-  variant="contained"
-  startIcon={<AddCircleOutlineIcon />}
-  onClick={addChord}
-  sx={{
-    backgroundColor: "#1976D2", // Darker blue to meet contrast
-    color: "#FFFFFF",
-    "&:hover": {
-      backgroundColor: "#1565C0", // Even darker blue
-    },
-  }}
->
-  Add Chord
-</Button>
+        <Button
+          variant="contained"
+          startIcon={<AddCircleOutlineIcon />}
+          onClick={addChord}
+          sx={{
+            backgroundColor: "#1976D2", // Darker blue to meet contrast
+            color: "#FFFFFF",
+            "&:hover": {
+              backgroundColor: "#1565C0", // Even darker blue
+            },
+          }}
+        >
+          Add Chord
+        </Button>
 
-<Button
-  variant="outlined"
-  startIcon={<DeleteIcon />}
-  onClick={() => onRemove(index)}
-  sx={{
-    color: "#B71C1C", // Darker red for contrast
-    borderColor: "#B71C1C",
-    "&:hover": {
-      backgroundColor: "#FFEBEE", // Light red for better contrast
-    },
-  }}
->
-  Delete
-</Button>
+        <Button
+          variant="outlined"
+          startIcon={<DeleteIcon />}
+          onClick={() => onRemove(index)}
+          sx={{
+            color: "#B71C1C", // Darker red for contrast
+            borderColor: "#B71C1C",
+            "&:hover": {
+              backgroundColor: "#FFEBEE", // Light red for better contrast
+            },
+          }}
+        >
+          Delete
+        </Button>
 
 
       </div>
@@ -274,52 +274,52 @@ export default function SongCreate() {
                     onRemove={handleRemoveLine}
                   />
                 ))}
-        <Button
-  variant="contained"
-  startIcon={<AddCircleOutlineIcon />}
-  onClick={addLine}
-  sx={{
-    backgroundColor: "#1976D2",
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    padding: "6px 16px",
-    fontSize: "1rem",
-    borderRadius: "8px",
-    transition: "background-color 0.2s ease-in-out",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Soft shadow
-    marginTop: "8px",
-    "&:hover": {
-      backgroundColor: "#1565C0",
-      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.15)", // Slightly stronger shadow
-    },
-  }}
->
-  Add Line
-</Button>
+                <Button
+                  variant="contained"
+                  startIcon={<AddCircleOutlineIcon />}
+                  onClick={addLine}
+                  sx={{
+                    backgroundColor: "#1976D2",
+                    color: "#FFFFFF",
+                    fontWeight: "bold",
+                    padding: "6px 16px",
+                    fontSize: "1rem",
+                    borderRadius: "8px",
+                    transition: "background-color 0.2s ease-in-out",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)", // Soft shadow
+                    marginTop: "8px",
+                    "&:hover": {
+                      backgroundColor: "#1565C0",
+                      boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.15)", // Slightly stronger shadow
+                    },
+                  }}
+                >
+                  Add Line
+                </Button>
               </div>
 
               <Button
-  variant="contained"
-  startIcon={<MusicNoteIcon />}
-  sx={{
-    backgroundColor: "#2E7D32", // Dark green for contrast
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontSize: "1.1rem",
-    padding: "8px 18px", // More spacing to make it stand out
-    borderRadius: "8px", // Modern rounded corners
-    transition: "background-color 0.2s ease-in-out",
-    type: "submit",
-    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Soft shadow
-    marginTop: "12px",
-    "&:hover": {
-      backgroundColor: "#1B5E20", // Slightly darker green on hover
-      boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)", // More prominent hover shadow
-    },
-  }}
->
-  Create Song
-</Button>
+                type="submit"
+                variant="contained"
+                startIcon={<MusicNoteIcon />}
+                sx={{
+                  backgroundColor: "#2E7D32", // Dark green for contrast
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  padding: "8px 18px", // More spacing to make it stand out
+                  borderRadius: "8px", // Modern rounded corners
+                  transition: "background-color 0.2s ease-in-out",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)", // Soft shadow
+                  marginTop: "12px",
+                  "&:hover": {
+                    backgroundColor: "#1B5E20", // Slightly darker green on hover
+                    boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)", // More prominent hover shadow
+                  },
+                }}
+              >
+                Create Song
+              </Button>
             </form>
           </div>
         </div>

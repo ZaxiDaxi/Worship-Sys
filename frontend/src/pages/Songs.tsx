@@ -93,14 +93,14 @@ const Songs: React.FC = () => {
   };
 
   return (
-   
+
     <div className="relative flex min-h-screen bg-white md:bg-white">
       <Sidebar />
 
       <div className="flex-1 transition-all duration-300">
         <div className="hidden md:block">
-                  <Header />
-                </div>
+          <Header />
+        </div>
 
         {/*
           Remove padding on mobile: p-0

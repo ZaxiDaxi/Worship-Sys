@@ -95,9 +95,9 @@ const Index = () => {
       */}
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-        
-                  <Header />
-                
+
+        <Header />
+
         {/* 
           On small screens: no padding 
           On md+ screens: p-6 

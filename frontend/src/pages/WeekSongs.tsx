@@ -42,16 +42,16 @@ const WeekSongs = () => {
       {/* Removed md:ml-64 to avoid pushing content on larger screens */}
       <div className="flex-1 transition-all duration-300">
         <div className="hidden md:block">
-                  <Header />
-                </div>
+          <Header />
+        </div>
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">This Week's Featured Songs</h2>
-            <IconButton onClick={handleEditSongs} ><AddCircleIcon sx={{ color: "black", width: 40, height: 40 }}/>
-              
+            <IconButton onClick={handleEditSongs} ><AddCircleIcon sx={{ color: "black", width: 40, height: 40 }} />
+
             </IconButton>
-              
-            
+
+
           </div>
 
           {weekSongs.length > 0 ? (
