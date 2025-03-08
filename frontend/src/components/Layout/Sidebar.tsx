@@ -67,7 +67,7 @@ export const Sidebar = () => {
           z-40
           ${isMobile
             ? // On mobile, slide in/out from the left
-              (isOpen ? "translate-x-0 w-[80%]" : "-translate-x-full w-[80%]")
+              (isOpen ? "translate-x-0 w-[100%]" : "-translate-x-full w-[100%]")
             : // On md+ screens, fix a 16rem wide sidebar on the left
               "w-64 translate-x-0"
           }

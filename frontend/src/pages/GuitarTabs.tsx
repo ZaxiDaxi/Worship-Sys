@@ -7,6 +7,8 @@ import AxiosInstance from "@/components/axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header";
+import Button from "@mui/material/Button";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 interface GuitarTab {
   id: number;
@@ -66,16 +68,10 @@ const GuitarTabs: React.FC = () => {
       },
     })
       .then((response) => {
-        // Fallback approach for different possible response shapes:
-        // 1) { guitartabs: [...], total: number }
-        // 2) [ ... ] (just an array of tabs)
         const data = response.data;
-
-        // If data is an array, use it directly. Otherwise, use data.guitartabs or []
         const tabs = Array.isArray(data) ? data : data.guitartabs || [];
-
-        // If data.total exists, use it. Otherwise, if data is an array, use data.length
-        const totalItems = data.total ?? (Array.isArray(data) ? data.length : 0);
+        const totalItems =
+          data.total ?? (Array.isArray(data) ? data.length : 0);
 
         setGuitarTabs(tabs);
         setTotal(totalItems);
@@ -166,30 +162,58 @@ const GuitarTabs: React.FC = () => {
         <div className="hidden md:block">
           <Header />
         </div>
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold mb-4 md:mb-0">Guitar Tabs List</h2>
 
-            {/* Search form (matches Songs.tsx) */}
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row justify-center items-center mb-6">
+            <h2 className="text-2xl font-bold mb-4 md:mb-0">
+              Guitar Tabs List
+            </h2>
+          </div>
+          {/* Updated container with responsive layout and gap */}
+          <div className="my-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div>
+              <Button
+                variant="contained"
+                startIcon={<MusicNoteIcon />}
+                onClick={() => setShowCreateModal(true)}
+                sx={{
+                  backgroundColor: "#2E7D32",
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.3rem" },
+                  padding: { xs: "4px 8px", sm: "4px 8px", md: "6px 12px" },
+                  borderRadius: "8px",
+                  transition: "background-color 0.2s ease-in-out",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  marginTop: { xs: "12px", md: "12px" },
+                  "&:hover": {
+                    backgroundColor: "#1B5E20",
+                    boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)",
+                  },
+                }}
+              >
+                Create
+              </Button>
+            </div>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 setSearchQuery(searchInput);
               }}
-              className="flex items-center max-w-md bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+              className="flex items-center w-40 sm:w-48 md:w-full md:max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mt-2"
             >
               <input
                 type="text"
                 placeholder="Search guitar tabs..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full px-4 py-2 focus:outline-none"
+                className="w-full px-2 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 focus:outline-none"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-white text-grey-600 items-center justify-center"
+                className="px-2 py-1 md:px-4 md:py-2 bg-white text-gray-600"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5" />
               </button>
             </form>
           </div>
@@ -208,7 +232,9 @@ const GuitarTabs: React.FC = () => {
                     >
                       <div className="flex items-center space-x-4 min-w-0">
                         <div className="min-w-0">
-                          <h3 className="font-semibold truncate">{tab.title}</h3>
+                          <h3 className="font-semibold truncate">
+                            {tab.title}
+                          </h3>
                           <p className="text-gray-600 truncate">{tab.artist}</p>
                           {(tab.key || tab.tempo) && (
                             <p className="text-gray-500 text-sm mt-1">
@@ -248,12 +274,13 @@ const GuitarTabs: React.FC = () => {
                 )}
               </div>
 
-              {/* Pagination only if NOT searching */}
               {!searchQuery && (
                 <div className="flex justify-center items-center mt-6 space-x-4">
                   <button
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -263,22 +290,15 @@ const GuitarTabs: React.FC = () => {
                   </span>
                   <button
                     className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
                     disabled={currentPage === totalPages}
                   >
                     Next
                   </button>
                 </div>
               )}
-
-              <div className="mt-6">
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Create Your First Guitar Tab
-                </button>
-              </div>
             </>
           )}
         </div>
@@ -311,28 +331,36 @@ const GuitarTabs: React.FC = () => {
                 type="text"
                 placeholder="Title"
                 value={newTabData.title}
-                onChange={(e) => setNewTabData({ ...newTabData, title: e.target.value })}
+                onChange={(e) =>
+                  setNewTabData({ ...newTabData, title: e.target.value })
+                }
                 className="w-full px-4 py-2 border rounded"
               />
               <input
                 type="text"
                 placeholder="Artist"
                 value={newTabData.artist}
-                onChange={(e) => setNewTabData({ ...newTabData, artist: e.target.value })}
+                onChange={(e) =>
+                  setNewTabData({ ...newTabData, artist: e.target.value })
+                }
                 className="w-full px-4 py-2 border rounded"
               />
               <input
                 type="text"
                 placeholder="Key"
                 value={newTabData.key}
-                onChange={(e) => setNewTabData({ ...newTabData, key: e.target.value })}
+                onChange={(e) =>
+                  setNewTabData({ ...newTabData, key: e.target.value })
+                }
                 className="w-full px-4 py-2 border rounded"
               />
               <input
                 type="text"
                 placeholder="Tempo"
                 value={newTabData.tempo}
-                onChange={(e) => setNewTabData({ ...newTabData, tempo: e.target.value })}
+                onChange={(e) =>
+                  setNewTabData({ ...newTabData, tempo: e.target.value })
+                }
                 className="w-full px-4 py-2 border rounded"
               />
             </div>

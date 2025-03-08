@@ -7,8 +7,7 @@ import { Trash2 } from "lucide-react";
 import Button from "@mui/material/Button";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { IconButton } from "@mui/material";
+
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
 interface Chord {

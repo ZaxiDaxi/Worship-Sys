@@ -113,7 +113,7 @@ const ChordLine: React.FC<{
     const tokens = splitLineByWordsWithIndex(text);
     return (
       <div
-        className="font-mono text-sm md:text-base lg:text-lg leading-[2.5] md:leading-[3.4] flex flex-wrap"
+        className="font-mono text-sm md:text-base lg:text-md leading-[2.5] md:leading-[3.4] flex flex-wrap"
         style={{ marginBottom: "0.5rem" }}
       >
         {tokens.map((tokenObj, i) => {
@@ -133,10 +133,10 @@ const ChordLine: React.FC<{
                 return (
                   <span
                     key={chordIdx}
-                    className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
+                    className="absolute text-blue-600 text-sm md:text-base lg:text-md"
                     style={{
                       left: `${relIndex}ch`,
-                      top: isMobile ? "-0.7em" : "-1.5em",
+                      top: isMobile ? "-0.9em" : "-1.1em",
                     }}
                   >
                     {c.chord}
@@ -191,7 +191,9 @@ const ChordLine: React.FC<{
               type="number"
               className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
               value={c.position}
-              onChange={(e) => handleChordChange(idx, "position", e.target.value)}
+              onChange={(e) =>
+                handleChordChange(idx, "position", e.target.value)
+              }
             />
           </div>
         ))}
@@ -219,14 +221,19 @@ export default function SongDetail() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editedLyrics, setEditedLyrics] = useState<LyricLine[]>([]);
-  const [transposedLyrics, setTransposedLyrics] = useState<LyricLine[] | null>(null);
+  const [transposedLyrics, setTransposedLyrics] = useState<LyricLine[] | null>(
+    null
+  );
   const [transposedKey, setTransposedKey] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState("");
   const [isTransposing, setIsTransposing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
 
   // ADDED: States to handle attaching a guitar tab
   const [attachedTab, setAttachedTab] = useState<any>(null);
@@ -283,13 +290,19 @@ export default function SongDetail() {
     setEditedLyrics(updated);
   };
 
-  const transposeSong = async (payload: { direction?: "up" | "down"; target_key?: string }) => {
+  const transposeSong = async (payload: {
+    direction?: "up" | "down";
+    target_key?: string;
+  }) => {
     if (!song) return;
     if (!payload.direction && !payload.target_key) return;
     setIsTransposing(true);
     setTransposedLyrics(null);
     try {
-      const response = await AxiosInstance.post(`transpose/${song.id}/`, payload);
+      const response = await AxiosInstance.post(
+        `transpose/${song.id}/`,
+        payload
+      );
       setTransposedLyrics(response.data.transposed_lyrics);
       setTransposedKey(response.data.transposed_key);
     } catch (error) {
@@ -305,15 +318,18 @@ export default function SongDetail() {
     const finalLyrics = transposedLyrics || editedLyrics;
     const finalKey = transposedKey || song.key;
     try {
-      const response = await AxiosInstance.post(`songs/${song.id}/new-version/`, {
-        title: editedTitle,
-        artist: song.artist,
-        key: finalKey,
-        tempo: song.tempo,
-        time_signature: song.time_signature,
-        lyrics: finalLyrics,
-        guitar_tab_id: attachedTab ? attachedTab.id : null,
-      });
+      const response = await AxiosInstance.post(
+        `songs/${song.id}/new-version/`,
+        {
+          title: editedTitle,
+          artist: song.artist,
+          key: finalKey,
+          tempo: song.tempo,
+          time_signature: song.time_signature,
+          lyrics: finalLyrics,
+          guitar_tab_id: attachedTab ? attachedTab.id : null,
+        }
+      );
       setSong(response.data);
       setEditedTitle(response.data.title);
       setEditedLyrics(response.data.lyrics);
@@ -386,24 +402,36 @@ export default function SongDetail() {
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
 
-  const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const MAJOR_KEYS = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ];
   const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
   const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
   const displayLyrics = transposedLyrics || editedLyrics;
 
   return (
-    
     <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
       <div className=" flex-1 transition-all duration-300">
         <div className="hidden md:block">
           <Header />
         </div>
-        
+
         {/*
           p-0 on mobile, p-6 on md+ 
         */}
-        <div className="p-0 md:p-6 bg-white" >
+        <div className="p-0 md:p-6 bg-white">
           <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
             <div className="text-left">
               {editMode ? (
@@ -423,7 +451,7 @@ export default function SongDetail() {
               </p>
 
               {/* Key / Tempo / Time */}
-              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl" >
+              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
                 </span>
@@ -441,7 +469,7 @@ export default function SongDetail() {
             </div>
 
             <div className="flex flex-wrap gap-4 text-sm lg:text-base">
-              {/* Transpose Controls */}
+              {/* Transpose Controls remain visible at all times */}
               <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
                 <button
                   onClick={() => transposeSong({ direction: "up" })}
@@ -493,90 +521,103 @@ export default function SongDetail() {
                 </button>
               )}
 
-              {/* Save Changes (overwrite) */}
-              <button
-                onClick={updateSong}
-                disabled={isSaving}
-                className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
-              >
-                {isSaving ? "Saving..." : "Save Changes"}
-              </button>
-
-              {/* Save a new version */}
-              <button
-                onClick={saveNewVersion}
-                disabled={isSaving}
-                className="flex items-center gap-1 bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
-              >
-                <Save className="h-4 w-4" />
-                Save Version
-              </button>
-
-              {/* Delete Song */}
-              <button
-                onClick={handleDeleteSong}
-                className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </button>
-
-              {/* Attach Tab Button */}
-              <button
-                onClick={() => setShowTabSelectionModal(true)}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
-              >
-                Attach Guitar Tab
-              </button>
+              {/* Buttons only shown in edit mode */}
+              {editMode && (
+                <>
+                  <button
+                    onClick={updateSong}
+                    disabled={isSaving}
+                    className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
+                  >
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </button>
+                  <button
+                    onClick={saveNewVersion}
+                    disabled={isSaving}
+                    className="flex items-center gap-1 bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
+                  >
+                    <Save className="h-4 w-4" />
+                    Save Version
+                  </button>
+                  <button
+                    onClick={handleDeleteSong}
+                    className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => setShowTabSelectionModal(true)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
+                  >
+                    Attach Guitar Tab
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Lyrics */}
-          <div className="space-y-6 mt-8">
-            {displayLyrics.map((line, i) => (
-              <ChordLine
-                key={i}
-                line={line}
-                editable={editMode}
-                onChange={(text, chords) => handleLyricChange(i, text, chords)}
-              />
-            ))}
-            {editMode && (
-              <button
-                type="button"
-                onClick={addLine}
-                className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm md:text-base lg:text-lg"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add New Line
-              </button>
-            )}
-          </div>
-
-          {/* Attached Tab (if any) */}
-          {attachedTab && (
-            <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
-              <div className="space-y-4">
-                {attachedTab.tab_data && attachedTab.tab_data.lines ? (
-                  attachedTab.tab_data.lines.map((line: any, idx: number) => (
-                    <div key={idx} className="mb-4 text-2xl">
-                      <TabNotation tabData={line} editMode={false} />
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-lg">No tab data available</p>
+          <div className="flex flex-col md:flex-row gap-6 mt-8">
+            <div className="md:w-1/2">
+              <div className="space-y-6 mt-8">
+                {displayLyrics.map((line, i) => (
+                  <ChordLine
+                    key={i}
+                    line={line}
+                    editable={editMode}
+                    onChange={(text, chords) =>
+                      handleLyricChange(i, text, chords)
+                    }
+                  />
+                ))}
+                {editMode && (
+                  <button
+                    type="button"
+                    onClick={addLine}
+                    className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm md:text-base lg:text-lg"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Add New Line
+                  </button>
                 )}
               </div>
-            </Card>
-          )}
+            </div>
+
+            {/* Attached Tab (if any) */}
+            <div className="md:w-1/2">
+              {attachedTab && (
+                <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
+                  <div className="space-y-4">
+                    {attachedTab.tab_data && attachedTab.tab_data.lines ? (
+                      attachedTab.tab_data.lines.map(
+                        (line: any, idx: number) => (
+                          <div key={idx} className="mb-4 text-2xl">
+                            <TabNotation tabData={line} editMode={false} />
+                          </div>
+                        )
+                      )
+                    ) : (
+                      <p className="text-lg">No tab data available</p>
+                    )}
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
