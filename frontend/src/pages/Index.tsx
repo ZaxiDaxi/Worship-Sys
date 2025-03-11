@@ -1,9 +1,11 @@
+// Index.tsx
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { Header } from "@/components/Layout/Header";
 import { StatCard } from "@/components/Overview/StatCard";
 import { ProfileSection } from "@/components/Overview/ProfileSection";
 import { PersonalDetails } from "@/components/Overview/PersonalDetails";
+import AxiosInstance from "@/components/axios"; // Use your custom Axios instance
 
 const Index = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -13,23 +15,9 @@ const Index = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          throw new Error("No access token. Please log in.");
-        }
-        const response = await fetch("http://127.0.0.1:8000/api/profiles/me/", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        setProfile(data);
+        // Use AxiosInstance to fetch the profile
+        const response = await AxiosInstance.get("profiles/me/");
+        setProfile(response.data);
       } catch (err: any) {
         setError(err.message || "Error fetching profile");
       } finally {
@@ -89,43 +77,11 @@ const Index = () => {
 
   return (
     <div className="relative flex min-h-screen bg-inherit">
-      {/* 
-        Because Layout.tsx already sets background color,
-        we can just keep "bg-inherit" or remove it altogether.
-      */}
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-
         <Header />
-
-        {/* 
-          On small screens: no padding 
-          On md+ screens: p-6 
-        */}
-        <main className=" p-6">
-          {/* 
-            1) Stats Section 
-               - White card on all screens or adapt if you want it transparent on mobile 
-          */}
-          <section
-            className="
-              shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)]
-              bg-white
-              flex
-              flex-col
-              text-2xl
-              text-black
-              text-center
-              m-0
-              md:mx-6
-              mt-0
-              md:mt-6
-              p-4
-              md:p-8
-              rounded-none
-              md:rounded-[15px]
-            "
-          >
+        <main className="p-6">
+          <section className="shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] bg-white flex flex-col text-2xl text-black text-center m-0 md:mx-6 mt-0 md:mt-6 p-4 md:p-8 rounded-none md:rounded-[15px]">
             <h1 className="font-semibold">Welcome {profile.user || "User"}</h1>
             <div className="flex w-full max-w-[1209px] items-stretch gap-6 font-medium flex-wrap mt-8 justify-center mx-auto">
               {stats.map((stat, index) => (
@@ -133,29 +89,7 @@ const Index = () => {
               ))}
             </div>
           </section>
-
-          {/* 
-            2) Profile + PersonalDetails 
-               - Transparent on mobile, white on md+ 
-          */}
-          <section
-            className="
-              mt-6
-              mx-0
-              md:mx-6
-
-              bg-transparent
-              md:bg-white
-
-              shadow-none
-              md:shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)]
-
-              p-0
-              md:p-6
-              rounded-none
-              md:rounded-[15px]
-            "
-          >
+          <section className="mt-6 mx-0 md:mx-6 bg-transparent md:bg-white shadow-none md:shadow-[0px_1px_5px_2px_rgba(0,0,0,0.25)] p-0 md:p-6 rounded-none md:rounded-[15px]">
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="w-full lg:w-[41%]">
                 <ProfileSection profile={profile} />
