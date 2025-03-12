@@ -159,7 +159,7 @@ const GuitarTabs: React.FC = () => {
     <div className="relative flex min-h-screen bg-white">
       <Sidebar />
       <div className="flex-1 transition-all duration-300">
-        <div className="hidden md:block">
+        <div className=" md:block">
           <Header />
         </div>
 

@@ -41,7 +41,7 @@ const WeekSongs = () => {
 
       {/* Removed md:ml-64 to avoid pushing content on larger screens */}
       <div className="flex-1 transition-all duration-300">
-        <div className="hidden md:block">
+        <div className="md:block">
           <Header />
         </div>
         <div className="p-6">

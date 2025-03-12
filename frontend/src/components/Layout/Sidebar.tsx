@@ -50,7 +50,7 @@ export const Sidebar = () => {
       {isMobile && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md md:hidden"
+          className="fixed top-4 left-4 z-50 p-2 mt-2 bg-white rounded-md shadow-md md:hidden flex items-center justify-center"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>

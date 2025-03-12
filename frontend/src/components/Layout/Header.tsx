@@ -24,10 +24,9 @@ export const Header: React.FC = () => {
     <header
       className="
         /* shadow on all screens */
+         relative
+        z-10
         shadow-[0px_4px_4px_rgba(0,0,0,0.25)]
-        
-        bg-[#EFF1F7]
-
         flex
         w-full
         items-stretch

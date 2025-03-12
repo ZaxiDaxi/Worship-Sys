@@ -98,7 +98,7 @@ const Songs: React.FC = () => {
       <Sidebar />
 
       <div className="flex-1 transition-all duration-300">
-        <div className="hidden md:block">
+        <div className="md:block">
           <Header />
         </div>
 
@@ -107,7 +107,7 @@ const Songs: React.FC = () => {
           Restore original padding on md+: md:p-6
         */}
         <div className="p-0 md:p-6">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 pt-4 md:pt-0 lg:md-0">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>
 
             <form

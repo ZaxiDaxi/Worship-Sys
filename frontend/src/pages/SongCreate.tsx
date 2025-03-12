@@ -201,7 +201,7 @@ export default function SongCreate() {
 
       {/* Removed md:ml-64 to let the main content fill all space */}
       <div className="flex-1 transition-all duration-300 ">
-        <div className="hidden md:block">
+        <div className=" md:block">
           <Header />
         </div>
         <div className="p-6">

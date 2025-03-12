@@ -424,7 +424,7 @@ export default function SongDetail() {
     <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
       <div className=" flex-1 transition-all duration-300">
-        <div className="hidden md:block">
+        <div className=" md:block">
           <Header />
         </div>
 
@@ -442,7 +442,7 @@ export default function SongDetail() {
                   onChange={(e) => setEditedTitle(e.target.value)}
                 />
               ) : (
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 pt-4 md:pt-0 lg:pt-0">
                   {song.title}
                 </h1>
               )}

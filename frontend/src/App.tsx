@@ -24,6 +24,24 @@ import { Sidebar } from "./components/Layout/Sidebar";
  * and sets up the responsive layout logic. 
  * On mobile, the Sidebar handles “drawer” overlay behavior itself.
  */
+function HeaderLayout() {
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Sidebar is always rendered, but internally it decides if it’s a drawer 
+          (mobile) or fixed sidebar (desktop) based on screen size. */}
+      <Sidebar />
+
+      {/* Main content area – offset to the right of the sidebar on md+ 
+          with `md:ml-64`, because the sidebar is 16rem wide. 
+          On small screens, the sidebar is overlay, so no left margin needed. */}
+      <div className="flex-1 mt-0 md:mt-0 md:ml-64 p-0">
+        <Outlet />
+      </div>
+    </div>
+  );
+}
+
+
 function MainLayout() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -34,12 +52,14 @@ function MainLayout() {
       {/* Main content area – offset to the right of the sidebar on md+ 
           with `md:ml-64`, because the sidebar is 16rem wide. 
           On small screens, the sidebar is overlay, so no left margin needed. */}
-      <div className="flex-1 mt-16 md:mt-0 md:ml-64 p-4">
+      <div className="flex-1 md:mt-0 md:ml-64 p-4 pt-0 px-0">
         <Outlet />
       </div>
     </div>
   );
 }
+
+
 
 /**
  * App – configures your routes. 
@@ -51,8 +71,17 @@ const App = () => (
     <Routes>
       {/* Public route (no sidebar) */}
       <Route path="/login" element={<Login />} />
+      
 
       {/* Protected routes with the responsive sidebar */}
+      <Route element={
+        <ProtectedRoute>
+          <HeaderLayout />
+        </ProtectedRoute>
+      }>
+        <Route path="/" element={<Index />} />
+
+      </Route>
       <Route
         element={
           <ProtectedRoute>
@@ -60,7 +89,7 @@ const App = () => (
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Index />} />
+        
         <Route path="/songs" element={<Songs />} />
         <Route path="/songs/:id" element={<SongDetail />} />
         <Route path="/week-songs" element={<WeekSongs />} />

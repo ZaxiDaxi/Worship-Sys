@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.109', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     # Core Django apps:
@@ -42,6 +42,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    'http://192.168.0.109:8080',
     'http://localhost:8080',
 ]
 
