@@ -106,7 +106,7 @@ const Songs: React.FC = () => {
           Remove padding on mobile: p-0
           Restore original padding on md+: md:p-6
         */}
-        <div className="p-0 md:p-6">
+        <div className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 pt-4 md:pt-0 lg:md-0">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">Songs List</h2>
 

@@ -15,9 +15,12 @@ import GuitarTabDetail from "./pages/GuitarTabDetail";
 import SelectWeekSongs from "./pages/SelectWeekSongs";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import ProfilePictureCropper from "./pages/ProfilePictureCropper";
 
 // Sidebar (make sure this import path points to your actual Sidebar.tsx)
 import { Sidebar } from "./components/Layout/Sidebar";
+
+
 
 /** 
  * MainLayout – includes the Sidebar on larger screens
@@ -97,6 +100,7 @@ const App = () => (
         <Route path="/create-song" element={<SongCreate />} />
         <Route path="/guitar-tabs" element={<GuitarTabs />} />
         <Route path="/guitar-tabs/:id" element={<GuitarTabDetail />} />
+        <Route path="/profile/crop" element={<ProfilePictureCropper />} />
       </Route>
 
       {/* Catch-all for unknown routes */}

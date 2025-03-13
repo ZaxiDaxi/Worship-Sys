@@ -17,5 +17,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'address',
             'instrument',
             'team',
-            'attendance'
+            'attendance',
+            'profile_picture',
         ]

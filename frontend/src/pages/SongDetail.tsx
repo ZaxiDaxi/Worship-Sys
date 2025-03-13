@@ -9,6 +9,7 @@ import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header"; // Global Header
 import { TabNotation } from "@/components/GuitarTab/TabNotation"; // For showing attached tab
+import EditIcon from '@mui/icons-material/Edit';
 
 // -------------------------
 // Interfaces
@@ -505,9 +506,10 @@ export default function SongDetail() {
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
+                  
+                  className=" text-black px-3 py-1 rounded text-sm md:text-base lg:text-lg"
                 >
-                  Edit
+                  <EditIcon className="h-10 w-10" />
                 </button>
               ) : (
                 <button
