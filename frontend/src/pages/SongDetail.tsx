@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowUpCircle, ArrowDownCircle, Save, Trash2 } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
-import { Header } from "@/components/Layout/Header"; // Global Header
-import { TabNotation } from "@/components/GuitarTab/TabNotation"; // For showing attached tab
-import EditIcon from '@mui/icons-material/Edit';
+import { Header } from "@/components/Layout/Header";
+import { TabNotation } from "@/components/GuitarTab/TabNotation";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Close";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { IconButton } from "@mui/material";
+import EditToolbar from "./EditToolbar"; // Floating toolbar component
 
-// -------------------------
-// Interfaces
-// -------------------------
 interface Chord {
   chord: string;
   position: number;
@@ -41,7 +42,7 @@ function isMinorKey(k: string) {
   return k.endsWith("m");
 }
 
-// A small helper to split the lyric line text so we can position chords correctly
+// Splits a line of text into tokens, each with a starting index
 function splitLineByWordsWithIndex(text: string) {
   const regex = /(\S+|\s+)/g;
   const tokens: Array<{ token: string; start: number }> = [];
@@ -55,9 +56,7 @@ function splitLineByWordsWithIndex(text: string) {
   return tokens;
 }
 
-// -------------------------
-// ChordLine Component
-// -------------------------
+// A single line of lyrics + chord positions
 const ChordLine: React.FC<{
   line: LyricLine;
   editable: boolean;
@@ -67,13 +66,26 @@ const ChordLine: React.FC<{
   const [chords, setChords] = useState<Chord[]>(line.chords);
   const isMobile = useIsMobile();
 
+  // Ref for auto-resizing the textarea
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // When the line prop changes (e.g. switching from one line to another),
+  // reset local states.
   useEffect(() => {
     setText(line.text);
     setChords(line.chords);
   }, [line]);
 
-  // Handle typed changes to the lyric text
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Auto-resize the textarea whenever text changes in edit mode
+  useEffect(() => {
+    if (editable && textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + "px";
+    }
+  }, [editable, text]);
+
+  // Handle text changes, shifting chord positions accordingly
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
     const positionShift = newText.length - text.length;
     const updatedChords = chords.map((c) => ({
@@ -85,7 +97,7 @@ const ChordLine: React.FC<{
     onChange?.(newText, updatedChords);
   };
 
-  // Handle chord or chord-position edits
+  // Handle chord or chord position changes
   const handleChordChange = (
     index: number,
     field: "chord" | "position",
@@ -102,14 +114,16 @@ const ChordLine: React.FC<{
     onChange?.(text, updated);
   };
 
-  // Add a new (empty) chord
+  // Add a new chord at position 0
   const addChord = () => {
     const newChords = [...chords, { chord: "", position: 0 }];
     setChords(newChords);
     onChange?.(text, newChords);
   };
 
-  // Read-only mode (the chords above words)
+  // --------------------------
+  // VIEW MODE (not editable)
+  // --------------------------
   if (!editable) {
     const tokens = splitLineByWordsWithIndex(text);
     return (
@@ -152,33 +166,82 @@ const ChordLine: React.FC<{
     );
   }
 
-  // Editable lyric line
+  // --------------------------
+  // EDIT MODE (with overlay)
+  // --------------------------
+  const tokens = splitLineByWordsWithIndex(text);
   return (
-    <div className="space-y-2 relative">
-      <div className="max-w-full overflow-x-auto">
-        <div className="relative w-full font-mono whitespace-pre text-sm md:text-base lg:text-lg">
-          <div className="relative" style={{ minHeight: "20px" }}>
-            {chords.map((c, idx) => (
+    <div className="relative space-y-2">
+      <div className="relative">
+        {/* A textarea that grows as the user types, made transparent so the chord overlay is visible */}
+        <textarea
+          ref={textAreaRef}
+          value={text}
+          onChange={handleTextChange}
+          maxLength={300}
+          rows={1}
+          className="
+            w-full 
+            text-sm md:text-base lg:text-lg 
+            font-mono 
+           
+            rounded 
+            px-1 py-1 
+            text-transparent bg-transparent 
+            caret-black 
+            leading-[2.5] md:leading-[3.4] 
+            whitespace-pre-wrap 
+            resize-none 
+            overflow-hidden
+          "
+          style={{ lineHeight: "normal" }}
+        />
+        {/* Absolutely positioned overlay that displays chords above the text for alignment */}
+        <div
+          className="
+            absolute top-0 left-0 w-full h-full 
+            pointer-events-none 
+            font-mono 
+            text-sm md:text-base lg:text-lg 
+            leading-[2.5] md:leading-[3.4] 
+            whitespace-pre-wrap
+          "
+        >
+          {tokens.map((tokenObj, i) => {
+            const tokenChords = chords.filter(
+              (c) =>
+                c.position >= tokenObj.start &&
+                c.position < tokenObj.start + tokenObj.token.length
+            );
+            return (
               <span
-                key={idx}
-                className="absolute text-blue-600 text-sm md:text-base lg:text-lg"
-                style={{ left: `${c.position * 8}px`, top: "0px" }}
+                key={i}
+                className="relative inline-block whitespace-pre"
+                style={{ marginRight: "4px" }}
               >
-                {c.chord}
+                {tokenChords.map((c, chordIdx) => {
+                  const relIndex = c.position - tokenObj.start;
+                  return (
+                    <span
+                      key={chordIdx}
+                      className="absolute text-blue-600"
+                      style={{
+                        left: `${relIndex}ch`,
+                        top: "-1.1em", // adjust as needed
+                      }}
+                    >
+                      {c.chord}
+                    </span>
+                  );
+                })}
+                <span>{tokenObj.token}</span>
               </span>
-            ))}
-          </div>
-          <input
-            type="text"
-            className="text-gray-800 font-mono border border-gray-300 p-1 rounded w-full text-sm md:text-base lg:text-lg"
-            value={text}
-            onChange={handleTextChange}
-            maxLength={300}
-          />
+            );
+          })}
         </div>
       </div>
 
-      {/* Chord editor (the list of chord inputs) */}
+      {/* Chord editing controls below */}
       <div className="flex flex-col mt-2 space-y-2">
         {chords.map((c, idx) => (
           <div key={idx} className="flex gap-2">
@@ -201,18 +264,16 @@ const ChordLine: React.FC<{
         <button
           type="button"
           onClick={addChord}
-          className="bg-purple-500 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
+          className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm md:text-base lg:text-lg"
         >
-          + Add Chord
+          <AddCircleIcon sx={{ width: 24, height: 24 }} />
+          Add New Line
         </button>
       </div>
     </div>
   );
 };
 
-// -------------------------
-// MAIN SongDetail Component
-// -------------------------
 export default function SongDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -236,11 +297,12 @@ export default function SongDetail() {
     type?: "success" | "error" | "info";
   } | null>(null);
 
-  // ADDED: States to handle attaching a guitar tab
+  // States for attaching a guitar tab
   const [attachedTab, setAttachedTab] = useState<any>(null);
   const [showTabSelectionModal, setShowTabSelectionModal] = useState(false);
   const [availableTabs, setAvailableTabs] = useState<any[]>([]);
 
+  // Fetch the song details
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get(`songs/${id}/`)
@@ -250,7 +312,6 @@ export default function SongDetail() {
         setEditedTitle(data.title);
         setEditedLyrics(data.lyrics);
 
-        // If there's an attached guitar_tab_id, fetch that tab
         if (data.guitar_tab_id) {
           AxiosInstance.get(`guitartabs/${data.guitar_tab_id}/`)
             .then((tabRes) => {
@@ -272,7 +333,7 @@ export default function SongDetail() {
       });
   }, [id, navigate]);
 
-  // If user wants to attach a tab, fetch a list of available tabs
+  // Fetch available guitar tabs if the selection modal is shown
   useEffect(() => {
     if (showTabSelectionModal) {
       AxiosInstance.get("guitartabs/")
@@ -285,12 +346,14 @@ export default function SongDetail() {
     }
   }, [showTabSelectionModal]);
 
+  // Handle line text/chord changes in the lyric lines
   const handleLyricChange = (index: number, text: string, chords: Chord[]) => {
     const updated = [...editedLyrics];
     updated[index] = { text, chords };
     setEditedLyrics(updated);
   };
 
+  // Transpose the song up/down or to a target key
   const transposeSong = async (payload: {
     direction?: "up" | "down";
     target_key?: string;
@@ -300,10 +363,7 @@ export default function SongDetail() {
     setIsTransposing(true);
     setTransposedLyrics(null);
     try {
-      const response = await AxiosInstance.post(
-        `transpose/${song.id}/`,
-        payload
-      );
+      const response = await AxiosInstance.post(`transpose/${song.id}/`, payload);
       setTransposedLyrics(response.data.transposed_lyrics);
       setTransposedKey(response.data.transposed_key);
     } catch (error) {
@@ -313,6 +373,7 @@ export default function SongDetail() {
     }
   };
 
+  // Save a new version of the song
   const saveNewVersion = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -343,6 +404,7 @@ export default function SongDetail() {
     }
   };
 
+  // Update the existing song (not a new version)
   const updateSong = async () => {
     if (!song) return;
     setIsSaving(true);
@@ -368,10 +430,10 @@ export default function SongDetail() {
     }
   };
 
+  // Delete the song
   const handleDeleteSong = () => {
     setShowDeleteConfirm(true);
   };
-
   const confirmDelete = async () => {
     if (!song) return;
     try {
@@ -388,6 +450,7 @@ export default function SongDetail() {
     }
   };
 
+  // Transpose to a specific key from the dropdown
   const handleKeyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const chosenKey = e.target.value;
     setTargetKey(chosenKey);
@@ -396,6 +459,7 @@ export default function SongDetail() {
     }
   };
 
+  // Add a blank lyric line
   const addLine = () => {
     setEditedLyrics([...editedLyrics, { text: "", chords: [] }]);
   };
@@ -403,37 +467,24 @@ export default function SongDetail() {
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
 
-  const MAJOR_KEYS = [
-    "C",
-    "C#",
-    "D",
-    "D#",
-    "E",
-    "F",
-    "F#",
-    "G",
-    "G#",
-    "A",
-    "A#",
-    "B",
-  ];
+  // Key arrays for transposition
+  const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
   const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
   const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
+
+  // If we've transposed, show transposed lyrics; otherwise, show the edited ones
   const displayLyrics = transposedLyrics || editedLyrics;
 
   return (
     <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar />
-      <div className=" flex-1 transition-all duration-300">
-        <div className=" md:block">
+      <div className="flex-1 transition-all duration-300">
+        <div className="md:block">
           <Header />
         </div>
-
-        {/*
-          p-0 on mobile, p-6 on md+ 
-        */}
-        <div className="p-0 md:p-6 bg-white">
-          <div className="flex flex-col md:flex-row justify-between items-start mb-8 space-y-4 md:space-y-0">
+        <div className="p-6 bg-white">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
+            {/* Left: Song Title, Artist, and Details */}
             <div className="text-left">
               {editMode ? (
                 <input
@@ -450,8 +501,6 @@ export default function SongDetail() {
               <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-4">
                 By {song.artist}
               </p>
-
-              {/* Key / Tempo / Time */}
               <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
@@ -469,8 +518,8 @@ export default function SongDetail() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 text-sm lg:text-base">
-              {/* Transpose Controls remain visible at all times */}
+            {/* Right: Transposition Controls and Edit Toggle Button */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
               <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
                 <button
                   onClick={() => transposeSong({ direction: "up" })}
@@ -502,64 +551,38 @@ export default function SongDetail() {
                 </button>
               </div>
 
-              {/* Toggle Edit / Cancel Edit */}
+              {/* Edit Toggle Button with Circular Background */}
               {!editMode ? (
-                <button
+                <IconButton
                   onClick={() => setEditMode(true)}
-                  
-                  className=" text-black px-3 py-1 rounded text-sm md:text-base lg:text-lg"
-                >
-                  <EditIcon className="h-10 w-10" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setTransposedLyrics(null);
-                    setEditMode(false);
+                  title="Edit"
+                  sx={{
+                    backgroundColor: "#16BBE5",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    "&:hover": { backgroundColor: "#0d99c0" },
                   }}
-                  className="bg-gray-500 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm md:text-base lg:text-lg"
                 >
-                  Cancel Edit
-                </button>
-              )}
-
-              {/* Buttons only shown in edit mode */}
-              {editMode && (
-                <>
-                  <button
-                    onClick={updateSong}
-                    disabled={isSaving}
-                    className="flex items-center gap-1 bg-blue-600 hover:bg-blue-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </button>
-                  <button
-                    onClick={saveNewVersion}
-                    disabled={isSaving}
-                    className="flex items-center gap-1 bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-lg transition-colors duration-200 disabled:opacity-50 text-sm md:text-base lg:text-lg"
-                  >
-                    <Save className="h-4 w-4" />
-                    Save Version
-                  </button>
-                  <button
-                    onClick={handleDeleteSong}
-                    className="flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => setShowTabSelectionModal(true)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
-                  >
-                    Attach Guitar Tab
-                  </button>
-                </>
+                  <EditIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  onClick={() => setEditMode(false)}
+                  title="Cancel Edit"
+                  sx={{
+                    backgroundColor: "#E53E3E",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    "&:hover": { backgroundColor: "#c53030" },
+                  }}
+                >
+                  <CancelIcon />
+                </IconButton>
               )}
             </div>
           </div>
 
-          {/* Lyrics */}
+          {/* Lyrics Section */}
           <div className="flex flex-col gap-6 mt-8">
             <div className="w-full">
               <div className="space-y-6 mt-8">
@@ -568,9 +591,7 @@ export default function SongDetail() {
                     key={i}
                     line={line}
                     editable={editMode}
-                    onChange={(text, chords) =>
-                      handleLyricChange(i, text, chords)
-                    }
+                    onChange={(text, chords) => handleLyricChange(i, text, chords)}
                   />
                 ))}
                 {editMode && (
@@ -599,19 +620,17 @@ export default function SongDetail() {
               </div>
             </div>
 
-            {/* Attached Tab (if any) */}
+            {/* Attached Tab */}
             <div className="w-full max-w-5xl mx-auto border border-gray-200 p-4 rounded bg-white flex items-center justify-center">
               {attachedTab && (
                 <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
                   <div className="space-y-4">
                     {attachedTab.tab_data && attachedTab.tab_data.lines ? (
-                      attachedTab.tab_data.lines.map(
-                        (line: any, idx: number) => (
-                          <div key={idx} className="mb-4 text-2xl">
-                            <TabNotation tabData={line} editMode={false} />
-                          </div>
-                        )
-                      )
+                      attachedTab.tab_data.lines.map((line: any, idx: number) => (
+                        <div key={idx} className="mb-4 text-2xl">
+                          <TabNotation tabData={line} editMode={false} />
+                        </div>
+                      ))
                     ) : (
                       <p className="text-lg">No tab data available</p>
                     )}
@@ -623,7 +642,7 @@ export default function SongDetail() {
         </div>
       </div>
 
-      {/* Confirm Delete Dialog */}
+      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <ConfirmationModal
           isOpen={showDeleteConfirm}
@@ -634,7 +653,7 @@ export default function SongDetail() {
         />
       )}
 
-      {/* Toast messages */}
+      {/* Toast Notifications */}
       {toast && (
         <Toast
           message={toast.message}
@@ -643,7 +662,7 @@ export default function SongDetail() {
         />
       )}
 
-      {/* Attach Guitar Tab Modal */}
+      {/* Guitar Tab Selection Modal */}
       {showTabSelectionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
@@ -657,7 +676,6 @@ export default function SongDetail() {
                     onClick={() => {
                       setAttachedTab(tab);
                       setShowTabSelectionModal(false);
-                      // Once user chooses a tab, update the song so it references the new attached tab ID
                       updateSong();
                     }}
                   >
@@ -679,6 +697,17 @@ export default function SongDetail() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Floating Edit Toolbar (at bottom-center) when in edit mode */}
+      {editMode && (
+        <EditToolbar
+          onSend={() => alert("Send action")}
+          onAddImage={() => alert("Add image action")}
+          onCopy={() => alert("Copy action")}
+          onComment={() => alert("Comment action")}
+          onAdd={() => alert("Add action")}
+        />
       )}
     </div>
   );
