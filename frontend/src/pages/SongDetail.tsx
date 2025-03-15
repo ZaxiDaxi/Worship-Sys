@@ -80,7 +80,8 @@ const ChordLine: React.FC<{
   useEffect(() => {
     if (editable && textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
-      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + "px";
+      textAreaRef.current.style.height =
+        textAreaRef.current.scrollHeight + "px";
     }
   }, [editable, text]);
 
@@ -143,8 +144,8 @@ const ChordLine: React.FC<{
               className="relative inline-block whitespace-pre"
               style={{ marginRight: "4px" }}
             >
-              {tokenChords.map((c, chordIdx) => {
-                const relIndex = c.position - tokenObj.start;
+              {tokenChords.map((chord, chordIdx) => {
+                const relIndex = chord.position - tokenObj.start;
                 return (
                   <span
                     key={chordIdx}
@@ -154,7 +155,7 @@ const ChordLine: React.FC<{
                       top: isMobile ? "-0.9em" : "-1.1em",
                     }}
                   >
-                    {c.chord}
+                    {chord.chord}
                   </span>
                 );
               })}
@@ -171,7 +172,7 @@ const ChordLine: React.FC<{
   // --------------------------
   const tokens = splitLineByWordsWithIndex(text);
   return (
-    <div className="relative space-y-2">
+    <div className="relative space-y-8">
       <div className="relative">
         {/* A textarea that grows as the user types, made transparent so the chord overlay is visible */}
         <textarea
@@ -244,31 +245,39 @@ const ChordLine: React.FC<{
       {/* Chord editing controls below */}
       <div className="flex flex-col mt-2 space-y-2">
         {chords.map((c, idx) => (
-          <div key={idx} className="flex gap-2">
-            <input
-              type="text"
-              className="border p-1 rounded w-24 text-sm md:text-base lg:text-lg"
-              value={c.chord}
-              onChange={(e) => handleChordChange(idx, "chord", e.target.value)}
-            />
-            <input
-              type="number"
-              className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
-              value={c.position}
-              onChange={(e) =>
-                handleChordChange(idx, "position", e.target.value)
-              }
-            />
+          <div key={idx} className="flex flex-wrap gap-2">
+            <div className="flex items-center border border-gray-300 rounded px-2 py-1">
+              <input
+                type="text"
+                className="border p-1 rounded w-24 text-sm md:text-base lg:text-lg"
+                value={c.chord}
+                onChange={(e) =>
+                  handleChordChange(idx, "chord", e.target.value)
+                }
+              />
+              <input
+                type="number"
+                className="border p-1 rounded w-20 text-sm md:text-base lg:text-lg"
+                value={c.position}
+                onChange={(e) =>
+                  handleChordChange(idx, "position", e.target.value)
+                }
+              />
+              {/* Only show the AddChord button if this is the last chord in the line */}
+              {idx === chords.length - 1 && (
+                <IconButton onClick={addChord} sx={{ color: "black", p: 0.5 }}>
+                  <AddCircleIcon sx={{ width: 24, height: 24 }} />
+                </IconButton>
+              )}
+            </div>
           </div>
         ))}
-        <button
-          type="button"
-          onClick={addChord}
-          className="mt-4 bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1 text-sm md:text-base lg:text-lg"
-        >
-          <AddCircleIcon sx={{ width: 24, height: 24 }} />
-          Add New Line
-        </button>
+
+        {chords.length === 0 && (
+          <IconButton onClick={addChord} sx={{ color: "black", p: 0.5 }}>
+            <AddCircleIcon sx={{ width: 24, height: 24 }} />
+          </IconButton>
+        )}
       </div>
     </div>
   );
@@ -363,7 +372,10 @@ export default function SongDetail() {
     setIsTransposing(true);
     setTransposedLyrics(null);
     try {
-      const response = await AxiosInstance.post(`transpose/${song.id}/`, payload);
+      const response = await AxiosInstance.post(
+        `transpose/${song.id}/`,
+        payload
+      );
       setTransposedLyrics(response.data.transposed_lyrics);
       setTransposedKey(response.data.transposed_key);
     } catch (error) {
@@ -468,7 +480,20 @@ export default function SongDetail() {
   if (!song) return <div>Song not found</div>;
 
   // Key arrays for transposition
-  const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const MAJOR_KEYS = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ];
   const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
   const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
 
@@ -482,26 +507,72 @@ export default function SongDetail() {
         <div className="md:block">
           <Header />
         </div>
-        <div className="p-6 bg-white">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-8 space-y-4 md:space-y-0">
-            {/* Left: Song Title, Artist, and Details */}
-            <div className="text-left">
+        <div className="p-6 bg-white w-full">
+          {/* Flex container: column on small screens, row on md+ screens */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            {/* LEFT SIDE: Title, artist, key/tempo badges */}
+            <div>
+              {/* Song title or editable input */}
               {editMode ? (
                 <input
                   type="text"
-                  className="border border-gray-300 p-2 rounded w-full text-xl md:text-2xl lg:text-3xl font-bold mb-2"
+                  className="border border-gray-300 p-2 rounded w-full text-xl 
+                 md:text-2xl lg:text-3xl font-bold mb-2"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
                 />
               ) : (
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2 pt-4 md:pt-0 lg:pt-0">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold pt-0">
                   {song.title}
                 </h1>
               )}
-              <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-4">
-                By {song.artist}
-              </p>
-              <div className="flex flex-wrap gap-4 text-base md:text-lg lg:text-xl">
+
+              {/* Put By {song.artist} and Select Key in the same container */}
+              <div className="flex items-center gap-3 mb-4 ">
+                <p className="text-gray-600 text-base md:text-lg lg:text-xl mb-0">
+                  By {song.artist}
+                </p>
+                <div
+                  className="bg-white rounded-lg p-1 flex items-center gap-2 
+                     sm:shadow-sm sm:border sm:border-gray-200"
+                >
+                  <button
+                    onClick={() => transposeSong({ direction: "up" })}
+                    disabled={isTransposing}
+                    className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 
+                     transition-colors duration-200 disabled:opacity-50"
+                    title="Transpose Up"
+                  >
+                    <ArrowUpCircle className="hidden sm:block h-5 w-5" />
+                  </button>
+                  <select
+                    value={targetKey}
+                    onChange={handleKeyChange}
+                    className="px-2 py-1 rounded-lg border border-gray-200 
+                     focus:outline-none focus:ring-2 focus:ring-purple-500
+                     text-sm md:text-base lg:text-lg "
+                  >
+                    <option value="">Select Key</option>
+                    {keysToDisplay.map((k) => (
+                      <option key={k} value={k}>
+                        {k}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => transposeSong({ direction: "down" })}
+                    disabled={isTransposing}
+                    className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 
+                     transition-colors duration-200 disabled:opacity-50"
+                    title="Transpose Down"
+                  >
+                    <ArrowDownCircle className="hidden sm:block h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Badges: Key, Tempo, Time Signature, etc. */}
+              <div className="flex flex-wrap gap-4 text-sm md:text-base lg:text-lg">
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                   Key: {transposedKey || song.key}
                 </span>
@@ -518,40 +589,13 @@ export default function SongDetail() {
               </div>
             </div>
 
-            {/* Right: Transposition Controls and Edit Toggle Button */}
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-1 flex items-center gap-2">
-                <button
-                  onClick={() => transposeSong({ direction: "up" })}
-                  disabled={isTransposing}
-                  className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
-                  title="Transpose Up"
-                >
-                  <ArrowUpCircle className="h-5 w-5" />
-                </button>
-                <select
-                  value={targetKey}
-                  onChange={handleKeyChange}
-                  className="px-2 py-1 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm md:text-base lg:text-lg"
-                >
-                  <option value="">Select Key</option>
-                  {keysToDisplay.map((k) => (
-                    <option key={k} value={k}>
-                      {k}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => transposeSong({ direction: "down" })}
-                  disabled={isTransposing}
-                  className="p-1 rounded-lg hover:bg-purple-50 text-purple-600 transition-colors duration-200 disabled:opacity-50"
-                  title="Transpose Down"
-                >
-                  <ArrowDownCircle className="h-5 w-5" />
-                </button>
-              </div>
+            {/* RIGHT SIDE: Transpose controls & Edit button */}
+            {/* On larger screens, this stays pinned to the right via `justify-between` above. 
+        On small screens, it drops underneath the left content. */}
+            <div className="flex flex-col md:flex-row gap-4 items-center mt-4 md:mt-0">
+              {/* Transpose controls */}
 
-              {/* Edit Toggle Button with Circular Background */}
+              {/* Edit toggle button */}
               {!editMode ? (
                 <IconButton
                   onClick={() => setEditMode(true)}
@@ -561,9 +605,11 @@ export default function SongDetail() {
                     color: "#fff",
                     borderRadius: "50%",
                     "&:hover": { backgroundColor: "#0d99c0" },
+                    width: { xs: 30, sm: 40 },
+                    height: { xs: 30, sm: 40 },
                   }}
                 >
-                  <EditIcon />
+                  <EditIcon sx={{ fontSize: { xs: 18, sm: 24 } }} />
                 </IconButton>
               ) : (
                 <IconButton
@@ -574,9 +620,11 @@ export default function SongDetail() {
                     color: "#fff",
                     borderRadius: "50%",
                     "&:hover": { backgroundColor: "#c53030" },
+                    width: { xs: 30, sm: 40 },
+                    height: { xs: 30, sm: 40 },
                   }}
                 >
-                  <CancelIcon />
+                  <CancelIcon sx={{ fontSize: { xs: 18, sm: 24 } }} />
                 </IconButton>
               )}
             </div>
@@ -591,7 +639,9 @@ export default function SongDetail() {
                     key={i}
                     line={line}
                     editable={editMode}
-                    onChange={(text, chords) => handleLyricChange(i, text, chords)}
+                    onChange={(text, chords) =>
+                      handleLyricChange(i, text, chords)
+                    }
                   />
                 ))}
                 {editMode && (
@@ -626,11 +676,13 @@ export default function SongDetail() {
                 <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
                   <div className="space-y-4">
                     {attachedTab.tab_data && attachedTab.tab_data.lines ? (
-                      attachedTab.tab_data.lines.map((line: any, idx: number) => (
-                        <div key={idx} className="mb-4 text-2xl">
-                          <TabNotation tabData={line} editMode={false} />
-                        </div>
-                      ))
+                      attachedTab.tab_data.lines.map(
+                        (line: any, idx: number) => (
+                          <div key={idx} className="mb-4 text-2xl">
+                            <TabNotation tabData={line} editMode={false} />
+                          </div>
+                        )
+                      )
                     ) : (
                       <p className="text-lg">No tab data available</p>
                     )}
