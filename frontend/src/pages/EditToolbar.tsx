@@ -1,29 +1,25 @@
-// EditToolbar.tsx
 import React from "react";
 import { IconButton } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
-import ImageIcon from "@mui/icons-material/Image";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import AddIcon from "@mui/icons-material/Add";
+import SaveIcon from '@mui/icons-material/Save';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
+
 
 interface EditToolbarProps {
-  onSend?: () => void;
-  onAddImage?: () => void;
-  onCopy?: () => void;
-  onComment?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onSave?: () => void;
+  onSaveNew?: () => void;
   onAdd?: () => void;
 }
 
-/**
- * A pill-shaped toolbar that is positioned at the bottom-center of the screen,
- * containing various action icons.
- */
 const EditToolbar: React.FC<EditToolbarProps> = ({
-  onSend,
-  onAddImage,
-  onCopy,
-  onComment,
+  onUndo,
+  onRedo,
+  onSave,
+  onSaveNew,
   onAdd,
 }) => {
   return (
@@ -44,19 +40,23 @@ const EditToolbar: React.FC<EditToolbarProps> = ({
         z-50
       "
     >
-      <IconButton onClick={onSend}>
-        <SendIcon />
+      <IconButton onClick={onUndo}>
+        <UndoIcon />
       </IconButton>
-      <IconButton onClick={onAddImage}>
-        <ImageIcon />
+      <IconButton onClick={onRedo}>
+        <RedoIcon />
       </IconButton>
-      <IconButton onClick={onCopy}>
-        <ContentCopyIcon />
+      <IconButton onClick={onSave}>
+        <SaveIcon />
       </IconButton>
-      <IconButton onClick={onComment}>
-        <ChatBubbleOutlineIcon />
+      <IconButton onClick={onSaveNew}
+      >
+        <SaveAltIcon />
       </IconButton>
-      <IconButton onClick={onAdd}>
+      <IconButton 
+        type="button"
+        onClick={onAdd}
+      >
         <AddIcon />
       </IconButton>
     </div>
