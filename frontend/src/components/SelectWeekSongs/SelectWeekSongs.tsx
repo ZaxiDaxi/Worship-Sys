@@ -1,11 +1,10 @@
-// SelectWeekSongs.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchBar from "@/components/reuse/SearchBar";  
-import SelectableSongCard from "./SelectableSongCard";
+import SongCard from "./SongCard";  // updated import
 
 interface Song {
   id: number;
@@ -79,11 +78,12 @@ const SelectWeekSongs: React.FC = () => {
           {/* Songs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredSongs.map((song) => (
-              <SelectableSongCard
+              <SongCard
                 key={song.id}
                 song={song}
                 isSelected={selectedSongs.some((s) => s.id === song.id)}
-                onSelect={handleSongSelect}
+                selectMode={true} // enable select mode (hides edit/delete buttons)
+                onClick={() => handleSongSelect(song.id)}
               />
             ))}
           </div>
