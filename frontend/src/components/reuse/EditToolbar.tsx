@@ -1,3 +1,4 @@
+// src/components/reuse/EditToolbar.tsx
 import React from "react";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -6,13 +7,13 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 
-
 interface EditToolbarProps {
   onUndo?: () => void;
   onRedo?: () => void;
   onSave?: () => void;
   onSaveNew?: () => void;
   onAdd?: () => void;
+  isSidebarOpen?: boolean;
 }
 
 const EditToolbar: React.FC<EditToolbarProps> = ({
@@ -21,7 +22,11 @@ const EditToolbar: React.FC<EditToolbarProps> = ({
   onSave,
   onSaveNew,
   onAdd,
+  isSidebarOpen,
 }) => {
+  // Hide the toolbar when the sidebar is open
+  if (isSidebarOpen) return null;
+
   return (
     <div
       className="
@@ -49,14 +54,10 @@ const EditToolbar: React.FC<EditToolbarProps> = ({
       <IconButton onClick={onSave}>
         <SaveIcon />
       </IconButton>
-      <IconButton onClick={onSaveNew}
-      >
+      <IconButton onClick={onSaveNew}>
         <SaveAltIcon />
       </IconButton>
-      <IconButton 
-        type="button"
-        onClick={onAdd}
-      >
+      <IconButton type="button" onClick={onAdd}>
         <AddIcon />
       </IconButton>
     </div>

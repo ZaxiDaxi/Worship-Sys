@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import AxiosInstance from "@/components/axios";
-import getCroppedImg from "./CropImage"; // see helper below
+import getCroppedImg from "@/components/reuse/CropImage"; // see helper below
 
 const ProfilePictureCropper: React.FC = () => {
   const navigate = useNavigate();

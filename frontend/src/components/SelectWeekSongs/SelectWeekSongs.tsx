@@ -1,11 +1,11 @@
 // SelectWeekSongs.tsx
 import React, { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Search } from "lucide-react";
+import SearchBar from "@/components/reuse/SearchBar";  
+import SelectableSongCard from "./SelectableSongCard";
 
 interface Song {
   id: number;
@@ -17,7 +17,7 @@ interface Song {
   time_signature?: string;
 }
 
-const SelectWeekSongs = () => {
+const SelectWeekSongs: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -36,7 +36,7 @@ const SelectWeekSongs = () => {
       .catch((err) => console.error("Error fetching songs:", err));
   }, []);
 
-  // Filter client-side by title or artist
+  // Client-side filter by title or artist.
   const filteredSongs = allSongs.filter(
     (song) =>
       song.title.toLowerCase().includes(searchInput.toLowerCase()) ||
@@ -66,51 +66,25 @@ const SelectWeekSongs = () => {
       <Sidebar />
       <div className="flex-1 transition-all duration-300 ml-0">
         <div className="p-6">
-          {/* Row: heading on the left, search form on the right */}
+          {/* Heading and Search */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Select 4 Songs for this Week</h2>
-            <form
+            <SearchBar
+              searchInput={searchInput}
+              onSearchInputChange={setSearchInput}
               onSubmit={(e) => e.preventDefault()}
-              className="flex items-center w-80 bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
-            >
-              <input
-                type="text"
-                placeholder="Search songs..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full px-4 py-2 focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-white  text-grey flex items-center justify-center"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-            </form>
+            />
           </div>
 
+          {/* Songs Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredSongs.map((song) => (
-              <Card
+              <SelectableSongCard
                 key={song.id}
-                className={`p-4 cursor-pointer ${selectedSongs.some((s) => s.id === song.id)
-                    ? "border-4 border-blue-500"
-                    : "hover:bg-gray-50"
-                  }`}
-                onClick={() => handleSongSelect(song.id)}
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={song.image_url || "https://via.placeholder.com/50"}
-                    alt={song.title}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold">{song.title}</h3>
-                    <p className="text-gray-600">{song.artist}</p>
-                  </div>
-                </div>
-              </Card>
+                song={song}
+                isSelected={selectedSongs.some((s) => s.id === song.id)}
+                onSelect={handleSongSelect}
+              />
             ))}
           </div>
 

@@ -6,16 +6,16 @@ import ProtectedRoute from "./pages/ProtectedRoute";
 
 // Pages
 import Index from "./pages/Index";
-import Songs from "./pages/Songs";
-import SongDetail from "./pages/SongDetail";
+import Songs from "./components/Songs/Songs";
+import SongDetail from "./components/SongDetail/SongDetail";
 import WeekSongs from "./pages/WeekSongs";
-import SongCreate from "./pages/SongCreate";
+import SongCreate from "./components/SongCreate/SongCreate";
 import GuitarTabs from "./pages/GuitarTabs";
 import GuitarTabDetail from "./pages/GuitarTabDetail";
-import SelectWeekSongs from "./pages/SelectWeekSongs";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import ProfilePictureCropper from "./pages/ProfilePictureCropper";
+import SelectWeekSongs from "./components/SelectWeekSongs/SelectWeekSongs";
+import Login from "./components/reuse/Login";
+import NotFound from "./components/reuse/NotFound";
+import ProfilePictureCropper from "./components/reuse/ProfilePictureCropper";
 
 // Sidebar (make sure this import path points to your actual Sidebar.tsx)
 import { Sidebar } from "./components/Layout/Sidebar";
