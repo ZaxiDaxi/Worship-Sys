@@ -19,6 +19,7 @@ interface Note {
   fret: number;
   position: number;
   connection?: NoteConnection;
+  isBending?: boolean;
 }
 
 interface StringData {
@@ -60,10 +61,7 @@ export default function GuitarTabDetail() {
   const [linesHistory, setLinesHistory] = useState<TabLine[][]>([]);
 
   function snapshotLines() {
-    setLinesHistory((prev) => [
-      ...prev,
-      JSON.parse(JSON.stringify(lines)),
-    ]);
+    setLinesHistory((prev) => [...prev, JSON.parse(JSON.stringify(lines))]);
   }
 
   function handleUndo() {
@@ -89,17 +87,17 @@ export default function GuitarTabDetail() {
         const loadedLines = data.tab_data?.lines?.length
           ? data.tab_data.lines
           : [
-            {
-              strings: [
-                { string: 1, notes: [] },
-                { string: 2, notes: [] },
-                { string: 3, notes: [] },
-                { string: 4, notes: [] },
-                { string: 5, notes: [] },
-                { string: 6, notes: [] },
-              ],
-            },
-          ];
+              {
+                strings: [
+                  { string: 1, notes: [] },
+                  { string: 2, notes: [] },
+                  { string: 3, notes: [] },
+                  { string: 4, notes: [] },
+                  { string: 5, notes: [] },
+                  { string: 6, notes: [] },
+                ],
+              },
+            ];
         setLines(loadedLines);
         const inputs = loadedLines.map((line) =>
           line.strings.map(() => ({ fret: "", position: "" }))
@@ -135,10 +133,7 @@ export default function GuitarTabDetail() {
     };
     const updated = [...lines, newLine];
     setLines(updated);
-    setNewNoteInputs((prev) => [
-      ...prev,
-      newLine.strings.map(() => ({ fret: "", position: "" })),
-    ]);
+    setNewNoteInputs((prev) => [...prev, newLine.strings.map(() => ({ fret: "", position: "" }))]);
   };
 
   const handleChangeInput = (
@@ -223,6 +218,15 @@ export default function GuitarTabDetail() {
     }
   };
 
+  // New handler for bending – toggles the isBending property of the target note
+  const handleBendToggle = (lineIndex: number, stringIndex: number, noteIndex: number) => {
+    snapshotLines();
+    const updatedLines = [...lines];
+    const note = updatedLines[lineIndex].strings[stringIndex].notes[noteIndex];
+    note.isBending = !note.isBending;
+    setLines(updatedLines);
+  };
+
   const handleSaveChanges = async () => {
     if (!tab) return;
     const newTabData: GuitarTabData = { lines };
@@ -291,7 +295,6 @@ export default function GuitarTabDetail() {
   return (
     <div className="relative flex min-h-screen bg-[#EFF1F7]">
       <Sidebar />
-      {/* Removed conditional margin for consistent responsiveness */}
       <div className="flex-1 transition-all duration-300">
         <Header />
         <div className="p-6">
@@ -308,9 +311,7 @@ export default function GuitarTabDetail() {
                 {editMode ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Title
-                      </label>
+                      <label className="block text-sm font-medium mb-1">Title</label>
                       <input
                         type="text"
                         className="border border-gray-300 p-2 rounded w-full max-w-md"
@@ -319,9 +320,7 @@ export default function GuitarTabDetail() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Artist
-                      </label>
+                      <label className="block text-sm font-medium mb-1">Artist</label>
                       <input
                         type="text"
                         className="border border-gray-300 p-2 rounded w-full max-w-md"
@@ -381,22 +380,25 @@ export default function GuitarTabDetail() {
                 <p className="font-medium text-sm">Select Technique:</p>
                 <button
                   onClick={() => setTechniqueType("slide")}
-                  className={`px-2 py-1 rounded text-sm ${techniqueType === "slide" ? "bg-blue-500 text-white" : "bg-gray-200"
-                    }`}
+                  className={`px-2 py-1 rounded text-sm ${
+                    techniqueType === "slide" ? "bg-blue-500 text-white" : "bg-gray-200"
+                  }`}
                 >
                   Slide
                 </button>
                 <button
                   onClick={() => setTechniqueType("hammerOn")}
-                  className={`px-2 py-1 rounded text-sm ${techniqueType === "hammerOn" ? "bg-blue-500 text-white" : "bg-gray-200"
-                    }`}
+                  className={`px-2 py-1 rounded text-sm ${
+                    techniqueType === "hammerOn" ? "bg-blue-500 text-white" : "bg-gray-200"
+                  }`}
                 >
                   H.O.
                 </button>
                 <button
                   onClick={() => setTechniqueType("pullOff")}
-                  className={`px-2 py-1 rounded text-sm ${techniqueType === "pullOff" ? "bg-blue-500 text-white" : "bg-gray-200"
-                    }`}
+                  className={`px-2 py-1 rounded text-sm ${
+                    techniqueType === "pullOff" ? "bg-blue-500 text-white" : "bg-gray-200"
+                  }`}
                 >
                   P.O.
                 </button>
@@ -410,21 +412,13 @@ export default function GuitarTabDetail() {
             {editMode ? (
               <div className="space-y-8">
                 {lines.map((line, lineIndex) => (
-                  <div
-                    key={lineIndex}
-                    className="border border-gray-200 rounded bg-gray-50 p-4"
-                  >
+                  <div key={lineIndex} className="border border-gray-200 rounded bg-gray-50 p-4">
                     <h2 className="font-semibold mb-4">Line {lineIndex + 1}</h2>
                     <div className="flex flex-col md:flex-row gap-4">
                       <div className="md:w-1/3 space-y-6">
                         {line.strings.map((stringData, stringIdx) => (
-                          <div
-                            key={stringIdx}
-                            className="p-2 bg-white rounded border"
-                          >
-                            <h3 className="font-medium mb-2">
-                              String {stringData.string}
-                            </h3>
+                          <div key={stringIdx} className="p-2 bg-white rounded border">
+                            <h3 className="font-medium mb-2">String {stringData.string}</h3>
                             <div className="flex items-center gap-4 mb-2">
                               <div className="flex flex-col items-center">
                                 <label className="text-xs">Fret</label>
@@ -435,9 +429,7 @@ export default function GuitarTabDetail() {
                                   onChange={(e) =>
                                     handleChangeInput(lineIndex, stringIdx, "fret", e.target.value)
                                   }
-                                  onKeyDown={(e) =>
-                                    handleLineKeyDown(e, lineIndex)
-                                  }
+                                  onKeyDown={(e) => handleLineKeyDown(e, lineIndex)}
                                 />
                               </div>
                               <div className="flex flex-col items-center">
@@ -449,9 +441,7 @@ export default function GuitarTabDetail() {
                                   onChange={(e) =>
                                     handleChangeInput(lineIndex, stringIdx, "position", e.target.value)
                                   }
-                                  onKeyDown={(e) =>
-                                    handleLineKeyDown(e, lineIndex)
-                                  }
+                                  onKeyDown={(e) => handleLineKeyDown(e, lineIndex)}
                                 />
                               </div>
                             </div>
@@ -462,9 +452,8 @@ export default function GuitarTabDetail() {
                         <TabNotation
                           tabData={line}
                           editMode={true}
-                          onNoteClick={(strIdx, noteIdx) =>
-                            handleNoteClick(lineIndex, strIdx, noteIdx)
-                          }
+                          onNoteClick={(strIdx, noteIdx) => handleNoteClick(lineIndex, strIdx, noteIdx)}
+                          onBendToggle={(strIdx, noteIdx) => handleBendToggle(lineIndex, strIdx, noteIdx)}
                         />
                       </div>
                     </div>
@@ -481,10 +470,7 @@ export default function GuitarTabDetail() {
             ) : (
               <div className="space-y-8">
                 {lines.map((line, lineIndex) => (
-                  <div
-                    key={lineIndex}
-                    className="border border-gray-200 p-4 rounded-lg bg-gray-50"
-                  >
+                  <div key={lineIndex} className="border border-gray-200 p-4 rounded-lg bg-gray-50">
                     <h2 className="font-semibold mb-4">Line {lineIndex + 1}</h2>
                     <TabNotation tabData={line} editMode={false} />
                   </div>

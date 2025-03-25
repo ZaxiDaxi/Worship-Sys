@@ -400,16 +400,18 @@ export default function SongDetail() {
                 ))}
               </div>
             </div>
-            <button
-                    onClick={() => setShowTabSelectionModal(true)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
-                  >
-                    Attach Guitar Tab
-                  </button>
+            {/* Attach Guitar Tab button only appears in edit mode */}
+            {editMode && (
+              <button
+                onClick={() => setShowTabSelectionModal(true)}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg transition-colors duration-200 text-sm md:text-base lg:text-lg"
+              >
+                Attach Guitar Tab
+              </button>
+            )}
 
             {/* Attached Tab */}
             <div className="w-full max-w-5xl mx-auto border border-gray-200 p-4 rounded bg-white flex items-center justify-center">
-              
               {attachedTab && (
                 <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
                   <div className="space-y-4">
