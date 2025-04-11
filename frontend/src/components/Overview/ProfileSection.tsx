@@ -9,6 +9,12 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
     return <div>No profile data.</div>;
   }
 
+  // Use the profile photo from the backend.
+  // If profile.profile_picture isn't available, fallback to a default URL.
+  const imageUrl =
+    profile.profile_picture ||
+    "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/ae978e8461ea892e399e2263eaf02894a8a92d0765ce3c927168e7403727ddc0";
+
   return (
     <div
       className="
@@ -29,9 +35,9 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
       <h2 className="mb-4 text-xl md:text-2xl lg:text-3xl">Your Profile</h2>
       <img
         loading="lazy"
-        src="https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/ae978e8461ea892e399e2263eaf02894a8a92d0765ce3c927168e7403727ddc0"
+        src={imageUrl}
         alt="Profile"
-        className="aspect-[1] object-contain w-[200px] max-w-full mb-4"
+        className="aspect-[1] object-contain w-[200px] max-w-full mb-4 rounded-full"
       />
       <div className="mt-1">
         <strong>Username:</strong> {profile.user}

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import logo from "@/components/img/header-photo.png"
 
 interface SidebarProps {
   onToggle?: (open: boolean) => void;
@@ -78,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onToggle }) => {
         <div className="sticky top-0 bg-white p-5 flex flex-col items-center z-50">
           <img
             loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/3ec5a9a16e2245553521d222bbdf61c36c1f2a41e1d77423a7d57c7e78628eaf"
+            src={logo}
             className="w-[100px] mx-auto"
             alt="Logo"
           />
