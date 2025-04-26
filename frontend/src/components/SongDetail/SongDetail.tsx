@@ -270,6 +270,12 @@ export default function SongDetail() {
   const addLine = () => {
     updateEditedLyrics([...editedLyrics, { text: "", chords: [{ chord: "", position: 0 }] }]);
   };
+    /** NEW — insert a blank line **above** the given index */
+    const insertLineAt = (idx: number) => {
+      const copy = [...editedLyrics];
+      copy.splice(idx, 0, { text: "", chords: [{ chord: "", position: 0 }] });
+      updateEditedLyrics(copy);
+    };
 
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
@@ -396,6 +402,8 @@ export default function SongDetail() {
                     line={line}
                     editable={editMode}
                     onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
+                     /* 👇 NEW – insert a blank line **above** this index */
+          onAddAbove={() => insertLineAt(i)}
                   />
                 ))}
               </div>
