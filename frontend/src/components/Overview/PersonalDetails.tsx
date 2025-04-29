@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import Button from "@mui/material/Button";
 interface PersonalDetailsProps {
   profile: any;
 }
@@ -62,9 +63,28 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({ profile }) => 
       <div className="mt-6 text-center text-base md:text-lg lg:text-xl text-gray-700">
         <p className="font-semibold">Song this Week</p>
         <Link to="/week-songs">
-          <button className="mt-2 font-semibold bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-            Go to Week Songs
-          </button>
+        <Button
+                type="submit"
+                variant="contained"
+                startIcon={<MusicNoteIcon />}
+                sx={{
+                  backgroundColor: "#2E7D32",
+                  color: "#FFFFFF",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  padding: "8px 18px",
+                  borderRadius: "8px",
+                  transition: "background-color 0.2s ease-in-out",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  marginTop: "12px",
+                  "&:hover": {
+                    backgroundColor: "#1B5E20",
+                    boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)",
+                  },
+                }}
+              >
+                This Week Songs
+              </Button>
         </Link>
       </div>
     </div>
