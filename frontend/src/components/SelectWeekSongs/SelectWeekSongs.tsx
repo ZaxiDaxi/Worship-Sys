@@ -5,6 +5,8 @@ import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchBar from "@/components/reuse/SearchBar";  
 import SongCard from "./SongCard";  // updated import
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import Button from "@mui/material/Button";
 
 interface Song {
   id: number;
@@ -89,12 +91,16 @@ const SelectWeekSongs: React.FC = () => {
           </div>
 
           <button
-            onClick={handleSave}
-            className="mt-6 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-            disabled={selectedSongs.length !== 4}
-          >
-            {selectedSongs.length !== 4 ? "Select 4 Songs" : "Save Selection"}
-          </button>
+  onClick={handleSave}
+  disabled={selectedSongs.length !== 4}
+  className={`mt-3 flex items-center gap-2 px-5 py-2 rounded-lg font-bold text-white text-[1.1rem] transition-all duration-200 shadow-md
+    ${selectedSongs.length !== 4 ? "bg-gray-400 cursor-not-allowed" : "bg-green-700 hover:bg-green-800"}
+  `}
+>
+  <MusicNoteIcon className="w-6 h-6" />
+  {selectedSongs.length !== 4 ? "Select 4 Songs" : "Select Song"}
+</button>
+
         </div>
       </div>
     </div>

@@ -7,6 +7,9 @@ import { TabNotation } from "@/components/GuitarTab/TabNotation";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Edit, Save, Trash2, RotateCcw } from "lucide-react";
 import { Header } from "@/components/Layout/Header";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Close";
+import { IconButton } from "@mui/material";
 
 interface NoteConnection {
   type: "slide" | "hammerOn" | "pullOff";
@@ -339,20 +342,27 @@ export default function GuitarTabDetail() {
               <div className="flex flex-wrap gap-3">
                 {!editMode ? (
                   <>
-                    <button
-                      onClick={() => setEditMode(true)}
-                      className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                    >
-                      <Edit className="h-5 w-5" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={handleDeleteTab}
-                      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                      Delete
-                    </button>
+                   <IconButton
+                  onClick={() => setEditMode(true)}
+                  title="Edit"
+                  sx={{
+                    backgroundColor: "#16BBE5",
+                    color: "#fff",
+                    borderRadius: "50%",
+                    "&:hover": { backgroundColor: "#0d99c0" },
+                    width: { sm: 40 },
+                    height: { sm: 40 },
+                  }}
+                >
+                  <EditIcon sx={{ fontSize: { sm: 24 } }} />
+                </IconButton>
+                <button
+  onClick={handleDeleteTab}
+  className="bg-[red] text-white rounded-full hover:bg-[#0d99c0] w-10 h-10 flex items-center justify-center"
+>
+  <Trash2 className="h-5 w-5" />
+</button>
+
                   </>
                 ) : (
                   <>
