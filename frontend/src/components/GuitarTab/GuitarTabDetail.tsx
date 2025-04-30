@@ -358,7 +358,7 @@ export default function GuitarTabDetail() {
                 </IconButton>
                 <button
   onClick={handleDeleteTab}
-  className="bg-[red] text-white rounded-full hover:bg-[#0d99c0] w-10 h-10 flex items-center justify-center"
+  className="bg-[red] text-white rounded-full  w-10 h-10 flex items-center justify-center"
 >
   <Trash2 className="h-5 w-5" />
 </button>
