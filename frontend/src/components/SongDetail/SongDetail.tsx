@@ -15,6 +15,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import EditToolbar from "@/components/reuse/EditToolbar";
 import ChordLine from "../reuse/ChordLine";
+import GreenButton from "../reuse/GreenButton";          // ✅ NEW
 import { isMinorKey } from "../reuse/songUtils";
 
 interface Chord {
@@ -270,12 +271,12 @@ export default function SongDetail() {
   const addLine = () => {
     updateEditedLyrics([...editedLyrics, { text: "", chords: [{ chord: "", position: 0 }] }]);
   };
-    /** NEW — insert a blank line **above** the given index */
-    const insertLineAt = (idx: number) => {
-      const copy = [...editedLyrics];
-      copy.splice(idx, 0, { text: "", chords: [{ chord: "", position: 0 }] });
-      updateEditedLyrics(copy);
-    };
+  /** NEW — insert a blank line **above** the given index */
+  const insertLineAt = (idx: number) => {
+    const copy = [...editedLyrics];
+    copy.splice(idx, 0, { text: "", chords: [{ chord: "", position: 0 }] });
+    updateEditedLyrics(copy);
+  };
 
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
@@ -396,25 +397,31 @@ export default function SongDetail() {
           <div className="flex flex-col gap-6 mt-4">
             <div className="w-full">
               <div className="space-y-6">
-              {displayLyrics.map((line, i) => (
-  <div key={i} className="space-y-2">
-    <ChordLine
-      line={line}
-      editable={editMode}
-      onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
-    />
-    {editMode && (
-      <button
-        className="text-purple-600 text-sm hover:underline"
-        onClick={() => insertLineAt(i + 1)}  // Add below
-      >
-        + Add Line Below
-      </button>
-    )}
-  </div>
-))}
-
-                
+                {displayLyrics.map((line, i) => (
+                  <div key={i} className="space-y-2">
+                    <ChordLine
+                      line={line}
+                      editable={editMode}
+                      onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
+                    />
+                    {editMode && (
+                      <GreenButton
+                      label="+ Add Line"
+                      onClick={() => insertLineAt(i + 1)}
+                      size="small"        // MUI’s built-in reduction
+                      color="inherit"
+                      startIcon={null}
+                      sx={{
+                        mt: 1,            // keep your margin-top
+                        fontSize: "0.7rem",
+                        padding: "2px 8px",   // tighten height & width
+                        lineHeight: 1.2,        // keep text vertically centred
+                        minWidth: "unset"     // drop MUI’s default 64 px width
+                      }}
+                    />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
             {/* Attach Guitar Tab button only appears in edit mode */}

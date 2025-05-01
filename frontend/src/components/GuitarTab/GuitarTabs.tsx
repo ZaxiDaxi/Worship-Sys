@@ -9,6 +9,7 @@ import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header";
 import Button from "@mui/material/Button";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import GreenButton from "../reuse/GreenButton"; 
 
 interface GuitarTab {
   id: number;
@@ -172,28 +173,7 @@ const GuitarTabs: React.FC = () => {
           {/* Updated container with responsive layout and gap */}
           <div className="my-6 flex flex-col md:flex-row gap-4 items-center justify-between">
             <div>
-              <Button
-                variant="contained"
-                startIcon={<MusicNoteIcon />}
-                onClick={() => setShowCreateModal(true)}
-                sx={{
-                  backgroundColor: "#2E7D32",
-                  color: "#FFFFFF",
-                  fontWeight: "bold",
-                  fontSize: { xs: "1.1rem", sm: "1rem", md: "1rem" },
-                  padding: { xs: "4px 8px", sm: "6px 8px", md: "6px 8px" },
-                  borderRadius: "8px",
-                  transition: "background-color 0.2s ease-in-out",
-                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  marginTop: { xs: "2px", s: '2px', md: "4px" },
-                  "&:hover": {
-                    backgroundColor: "#1B5E20",
-                    boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.15)",
-                  },
-                }}
-              >
-                Create
-              </Button>
+            <GreenButton onClick={() => setShowCreateModal(true)} />
             </div>
             <form
               onSubmit={(e) => {
