@@ -396,16 +396,25 @@ export default function SongDetail() {
           <div className="flex flex-col gap-6 mt-4">
             <div className="w-full">
               <div className="space-y-6">
-                {displayLyrics.map((line, i) => (
-                  <ChordLine
-                    key={i}
-                    line={line}
-                    editable={editMode}
-                    onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
-                     /* 👇 NEW – insert a blank line **above** this index */
-          onAddAbove={() => insertLineAt(i)}
-                  />
-                ))}
+              {displayLyrics.map((line, i) => (
+  <div key={i} className="space-y-2">
+    <ChordLine
+      line={line}
+      editable={editMode}
+      onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
+    />
+    {editMode && (
+      <button
+        className="text-purple-600 text-sm hover:underline"
+        onClick={() => insertLineAt(i + 1)}  // Add below
+      >
+        + Add Line Below
+      </button>
+    )}
+  </div>
+))}
+
+                
               </div>
             </div>
             {/* Attach Guitar Tab button only appears in edit mode */}
