@@ -212,12 +212,7 @@ const SongCreate: React.FC = () => {
         </div>
       </div>
 
-      <EditToolbar
-        onUndo={undo}
-        onRedo={redo}
-        onAdd={addLine}
-        isSidebarOpen={sidebarOpen}
-      />
+
 
       {toast && (
         <Toast
