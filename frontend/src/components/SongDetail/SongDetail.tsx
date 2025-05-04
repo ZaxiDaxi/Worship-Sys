@@ -1,5 +1,5 @@
 // SongDetail.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/components/axios";
 import { Card } from "@/components/ui/card";
@@ -15,7 +15,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import EditToolbar from "@/components/reuse/EditToolbar";
 import ChordLine from "../reuse/ChordLine";
-import GreenButton from "../reuse/GreenButton";          // ✅ NEW
+import GreenButton from "../reuse/GreenButton"; // ✅ reusable button
 import { isMinorKey } from "../reuse/songUtils";
 
 interface Chord {
@@ -39,37 +39,51 @@ interface Song {
   lyrics: LyricLine[];
   version: number;
   guitar_tab_id?: number | null;
+  flow_notes?: string;  
 }
 
 export default function SongDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+
   const [editMode, setEditMode] = useState(false);
   const [song, setSong] = useState<Song | null>(null);
   const [loading, setLoading] = useState(true);
-  const [transposedLyrics, setTransposedLyrics] = useState<LyricLine[] | null>(null);
+  const [transposedLyrics, setTransposedLyrics] = useState<LyricLine[] | null>(
+    null
+  );
   const [transposedKey, setTransposedKey] = useState<string | null>(null);
   const [targetKey, setTargetKey] = useState("");
   const [isTransposing, setIsTransposing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [toast, setToast] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type?: "success" | "error" | "info";
+  } | null>(null);
 
   const [attachedTab, setAttachedTab] = useState<any>(null);
   const [showTabSelectionModal, setShowTabSelectionModal] = useState(false);
   const [availableTabs, setAvailableTabs] = useState<any[]>([]);
 
-  // Undo/Redo states
+  // 🎶 NEW – flow notes state
+  const [flowNotes, setFlowNotes] = useState<string>(
+    "Verse → Chorus → Guitar Solo → Chorus"
+  );
+
+  // Undo/Redo (lyrics)
   const [past, setPast] = useState<LyricLine[][]>([]);
   const [editedLyrics, setEditedLyrics] = useState<LyricLine[]>([]);
   const [future, setFuture] = useState<LyricLine[][]>([]);
 
-  // State to track whether the sidebar is open.
+  // Sidebar open/close (for floating toolbar spacing)
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Record lyrics changes in history for undo/redo
+  /***********************
+   * Helpers             *
+   ***********************/
   const updateEditedLyrics = (newLyrics: LyricLine[]) => {
     if (JSON.stringify(newLyrics) === JSON.stringify(editedLyrics)) return;
     setPast((prev) => [...prev, editedLyrics]);
@@ -77,7 +91,6 @@ export default function SongDetail() {
     setFuture([]);
   };
 
-  // Undo
   const undoEditedLyrics = () => {
     if (past.length === 0) return;
     const previous = past[past.length - 1];
@@ -86,7 +99,6 @@ export default function SongDetail() {
     setEditedLyrics(previous);
   };
 
-  // Redo
   const redoEditedLyrics = () => {
     if (future.length === 0) return;
     const next = future[0];
@@ -95,6 +107,9 @@ export default function SongDetail() {
     setEditedLyrics(next);
   };
 
+  /***********************
+   * Effects             *
+   ***********************/
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === "z") {
@@ -109,7 +124,7 @@ export default function SongDetail() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [past, future, editedLyrics]);
 
-  // Fetch song
+  // Fetch song details
   useEffect(() => {
     setLoading(true);
     AxiosInstance.get(`songs/${id}/`)
@@ -123,70 +138,62 @@ export default function SongDetail() {
 
         if (data.guitar_tab_id) {
           AxiosInstance.get(`guitartabs/${data.guitar_tab_id}/`)
-            .then((tabRes) => {
-              setAttachedTab(tabRes.data);
-            })
-            .catch((tabErr) => {
-              console.error("Error fetching attached guitar tab:", tabErr);
-            });
+            .then((tabRes) => setAttachedTab(tabRes.data))
+            .catch((err) =>
+              console.error("Error fetching attached guitar tab:", err)
+            );
         }
       })
       .catch((err) => {
         console.error("Error fetching song details:", err);
-        if (err.response && err.response.status === 401) {
-          navigate("/login");
-        }
+        if (err.response && err.response.status === 401) navigate("/login");
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  // Fetch available tabs if needed
+  // Fetch available tabs list (when modal open)
   useEffect(() => {
-    if (showTabSelectionModal) {
-      AxiosInstance.get("guitartabs/")
-        .then((response) => {
-          setAvailableTabs(response.data.guitartabs || response.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching guitar tabs:", error);
-        });
-    }
+    if (!showTabSelectionModal) return;
+    AxiosInstance.get("guitartabs/")
+      .then((res) => setAvailableTabs(res.data.guitartabs || res.data))
+      .catch((err) => console.error("Error fetching guitar tabs:", err));
   }, [showTabSelectionModal]);
 
-  // Handle line updates
-  const handleLyricChange = (lineIndex: number, text: string, chords: any) => {
+  /***********************
+   * Event handlers      *
+   ***********************/
+  const handleLyricChange = (index: number, text: string, chords: any) => {
     const updated = [...editedLyrics];
-    updated[lineIndex] = { text, chords };
+    updated[index] = { text, chords };
     updateEditedLyrics(updated);
   };
 
-  // Transpose logic
-  const transposeSong = async (payload: { direction?: "up" | "down"; target_key?: string }) => {
+  const transposeSong = async (payload: {
+    direction?: "up" | "down";
+    target_key?: string;
+  }) => {
     if (!song) return;
     if (!payload.direction && !payload.target_key) return;
     setIsTransposing(true);
     setTransposedLyrics(null);
     try {
-      const response = await AxiosInstance.post(`transpose/${song.id}/`, payload);
-      setTransposedLyrics(response.data.transposed_lyrics);
-      setTransposedKey(response.data.transposed_key);
-    } catch (error) {
-      console.error("Error transposing song:", error);
+      const res = await AxiosInstance.post(`transpose/${song.id}/`, payload);
+      setTransposedLyrics(res.data.transposed_lyrics);
+      setTransposedKey(res.data.transposed_key);
+    } catch (err) {
+      console.error("Error transposing song:", err);
     } finally {
       setIsTransposing(false);
     }
   };
 
-  // Save new version
   const saveNewVersion = async () => {
     if (!song) return;
     setIsSaving(true);
     const finalLyrics = transposedLyrics || editedLyrics;
     const finalKey = transposedKey || song.key;
     try {
-      const response = await AxiosInstance.post(`songs/${song.id}/new-version/`, {
+      const res = await AxiosInstance.post(`songs/${song.id}/new-version/`, {
         title: editedTitle,
         artist: song.artist,
         key: finalKey,
@@ -194,10 +201,11 @@ export default function SongDetail() {
         time_signature: song.time_signature,
         lyrics: finalLyrics,
         guitar_tab_id: attachedTab ? attachedTab.id : null,
+        flow_notes: flowNotes,  
       });
-      setSong(response.data);
-      setEditedTitle(response.data.title);
-      setEditedLyrics(response.data.lyrics);
+      setSong(res.data);
+      setEditedTitle(res.data.title);
+      setEditedLyrics(res.data.lyrics);
       setPast([]);
       setFuture([]);
       setToast({ message: "New version saved successfully", type: "success" });
@@ -209,14 +217,13 @@ export default function SongDetail() {
     }
   };
 
-  // Update song
   const updateSong = async () => {
     if (!song) return;
     setIsSaving(true);
     const finalLyrics = transposedLyrics || editedLyrics;
     const finalKey = transposedKey || song.key;
     try {
-      const response = await AxiosInstance.put(`songs/${song.id}/`, {
+      const res = await AxiosInstance.put(`songs/${song.id}/`, {
         title: editedTitle,
         artist: song.artist,
         key: finalKey,
@@ -225,8 +232,8 @@ export default function SongDetail() {
         lyrics: finalLyrics,
         guitar_tab_id: attachedTab ? attachedTab.id : null,
       });
-      setSong(response.data);
-      setEditedLyrics(response.data.lyrics);
+      setSong(res.data);
+      setEditedLyrics(res.data.lyrics);
       setPast([]);
       setFuture([]);
       setToast({ message: "Song updated successfully", type: "success" });
@@ -238,50 +245,58 @@ export default function SongDetail() {
     }
   };
 
-  // Delete song
-  const handleDeleteSong = () => {
-    setShowDeleteConfirm(true);
-  };
   const confirmDelete = async () => {
     if (!song) return;
     try {
       await AxiosInstance.delete(`songs/${song.id}/`);
       setToast({ message: "Song deleted successfully", type: "success" });
       setShowDeleteConfirm(false);
-      setTimeout(() => {
-        navigate("/songs");
-      }, 1500);
-    } catch (error) {
-      console.error("Error deleting song:", error);
+      setTimeout(() => navigate("/songs"), 1500);
+    } catch (err) {
+      console.error("Error deleting song:", err);
       setToast({ message: "Error deleting song", type: "error" });
       setShowDeleteConfirm(false);
     }
   };
 
-  // Key dropdown
   const handleKeyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const chosenKey = e.target.value;
     setTargetKey(chosenKey);
-    if (chosenKey) {
-      transposeSong({ target_key: chosenKey });
-    }
+    if (chosenKey) transposeSong({ target_key: chosenKey });
   };
 
-  // Add new line
-  const addLine = () => {
-    updateEditedLyrics([...editedLyrics, { text: "", chords: [{ chord: "", position: 0 }] }]);
-  };
-  /** NEW — insert a blank line **above** the given index */
+  const addLine = () =>
+    updateEditedLyrics([
+      ...editedLyrics,
+      { text: "", chords: [{ chord: "", position: 0 }] },
+    ]);
+
   const insertLineAt = (idx: number) => {
     const copy = [...editedLyrics];
     copy.splice(idx, 0, { text: "", chords: [{ chord: "", position: 0 }] });
     updateEditedLyrics(copy);
   };
 
+  /***********************
+   * Render helpers      *
+   ***********************/
   if (loading) return <div>Loading song details...</div>;
   if (!song) return <div>Song not found</div>;
 
-  const MAJOR_KEYS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  const MAJOR_KEYS = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ];
   const MINOR_KEYS = MAJOR_KEYS.map((k) => k + "m");
   const keysToDisplay = isMinorKey(song.key) ? MINOR_KEYS : MAJOR_KEYS;
   const displayLyrics = transposedLyrics || editedLyrics;
@@ -290,11 +305,9 @@ export default function SongDetail() {
     <div className="relative flex min-h-screen bg-white md:bg-[#EFF1F7]">
       <Sidebar onToggle={(open) => setSidebarOpen(open)} />
       <div className="flex-1 transition-all duration-300">
-        <div className="md:block">
-          <Header />
-        </div>
+        <Header />
         <div className="p-6 bg-white w-full">
-          {/* Song title and artist */}
+          {/* Song title & artist */}
           <div className="mb-4">
             {editMode ? (
               <input
@@ -304,9 +317,13 @@ export default function SongDetail() {
                 onChange={(e) => setEditedTitle(e.target.value)}
               />
             ) : (
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold pt-0">{song.title}</h1>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold pt-0">
+                {song.title}
+              </h1>
             )}
-            <p className="text-gray-600 text-base lg:text-lg mb-0">By {song.artist}</p>
+            <p className="text-gray-600 text-base lg:text-lg mb-0">
+              By {song.artist}
+            </p>
           </div>
 
           {/* Controls */}
@@ -336,7 +353,7 @@ export default function SongDetail() {
                 >
                   <ArrowUpCircle className="h-5 w-5" />
                 </button>
-                
+
                 <select
                   value={targetKey}
                   onChange={handleKeyChange}
@@ -349,6 +366,7 @@ export default function SongDetail() {
                     </option>
                   ))}
                 </select>
+
                 <button
                   onClick={() => transposeSong({ direction: "down" })}
                   disabled={isTransposing}
@@ -393,7 +411,7 @@ export default function SongDetail() {
             </div>
           </div>
 
-          {/* Lyrics Section */}
+          {/* Lyrics */}
           <div className="flex flex-col gap-6 mt-4">
             <div className="w-full">
               <div className="space-y-6">
@@ -402,29 +420,32 @@ export default function SongDetail() {
                     <ChordLine
                       line={line}
                       editable={editMode}
-                      onChange={(newText, newChords) => handleLyricChange(i, newText, newChords)}
+                      onChange={(newText, newChords) =>
+                        handleLyricChange(i, newText, newChords)
+                      }
                     />
                     {editMode && (
                       <GreenButton
-                      label="+ Add Line"
-                      onClick={() => insertLineAt(i + 1)}
-                      size="small"        // MUI’s built-in reduction
-                      color="inherit"
-                      startIcon={null}
-                      sx={{
-                        mt: 1,            // keep your margin-top
-                        fontSize: "0.7rem",
-                        padding: "2px 8px",   // tighten height & width
-                        lineHeight: 1.2,        // keep text vertically centred
-                        minWidth: "unset"     // drop MUI’s default 64 px width
-                      }}
-                    />
+                        label="+ Add Line"
+                        onClick={() => insertLineAt(i + 1)}
+                        size="small"
+                        color="inherit"
+                        startIcon={null}
+                        sx={{
+                          mt: 1,
+                          fontSize: "0.7rem",
+                          padding: "2px 8px",
+                          lineHeight: 1.2,
+                          minWidth: "unset",
+                        }}
+                      />
                     )}
                   </div>
                 ))}
               </div>
             </div>
-            {/* Attach Guitar Tab button only appears in edit mode */}
+
+            {/* Attach Guitar Tab (edit only) */}
             {editMode && (
               <button
                 onClick={() => setShowTabSelectionModal(true)}
@@ -434,25 +455,60 @@ export default function SongDetail() {
               </button>
             )}
 
-            {/* Attached Tab */}
-            <div className="w-full max-w-5xl mx-auto border border-gray-200 p-4 rounded bg-white flex items-center justify-center">
-              {attachedTab && (
-                <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
-                  <div className="space-y-4">
-                    {attachedTab.tab_data && attachedTab.tab_data.lines ? (
-                      attachedTab.tab_data.lines.map((l: any, idx: number) => (
-                        <div key={idx} className="mb-4 text-2xl">
-                          <TabNotation tabData={l} editMode={false} />
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-lg">No tab data available</p>
-                    )}
-                  </div>
-                </Card>
-              )}
-            </div>
+            {/* ─── Song Flow Section (updated layout) ───────────────── */}
+
+            {/* Divider */}
+            <div className="w-full border-t border-gray-300 my-6" />
+            <p className="text-center uppercase text-sm md:text-xl font-bold  ">
+              Song Flow
+            </p>
+
+            {/* ▼ 1. Flow content FIRST */}
+            {editMode ? (
+              <div className="bg-gray-50 border border-dashed">
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded text-sm md:text-lg"
+                  rows={3}
+                  value={flowNotes}
+                  onChange={(e) => setFlowNotes(e.target.value)}
+                  placeholder="e.g., Verse → Chorus → Guitar Solo → Chorus"
+                />
+              </div>
+            ) : (
+              <p className="text-gray-800  my-4 whitespace-pre-wrap text-sm md:text-lg">
+                {flowNotes}
+              </p>
+            )}
+
+            {/* ▼ 2. Label AFTER the content */}
           </div>
+
+          {/* ─── Divider & label for Guitar Tab ───────────────────── */}
+          {attachedTab && (
+            <>
+              <div className="w-full border-t border-gray-300 my-10" />
+              <p className="text-center uppercase tracking-wider text-sm md:text-xl font-bold mb-6">
+                Guitar Tab
+              </p>
+            </>
+          )}
+
+          {/* ─── Attached Guitar Tab ─────────────────────────────── */}
+          {attachedTab && (
+            <Card className="bg-white w-full max-w-4xl mx-auto my-4 p-6">
+              <div className="space-y-4">
+                {attachedTab.tab_data?.lines?.length ? (
+                  attachedTab.tab_data.lines.map((l: any, idx: number) => (
+                    <div key={idx} className="mb-4 text-2xl">
+                      <TabNotation tabData={l} editMode={false} />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-lg">No tab data available</p>
+                )}
+              </div>
+            </Card>
+          )}
         </div>
       </div>
 
@@ -468,7 +524,13 @@ export default function SongDetail() {
       )}
 
       {/* Toast */}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       {/* Guitar Tab Selection Modal */}
       {showTabSelectionModal && (

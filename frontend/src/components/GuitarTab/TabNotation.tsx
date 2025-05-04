@@ -29,6 +29,7 @@ interface TabProps {
   editMode?: boolean;
   onNoteClick?: (stringIndex: number, noteIndex: number) => void;
   onBendToggle?: (stringIndex: number, noteIndex: number) => void;
+  hideSvgWrapper?: boolean; 
 }
 
 export const TabNotation: React.FC<TabProps> = ({
@@ -45,6 +46,7 @@ export const TabNotation: React.FC<TabProps> = ({
   editMode = false,
   onNoteClick,
   onBendToggle,
+  hideSvgWrapper = false, // ✅ Add this line
 }) => {
   // Local state to track which note is selected for bending
   const [selectedNote, setSelectedNote] = useState<{ stringIndex: number; noteIndex: number } | null>(null);
@@ -83,12 +85,11 @@ export const TabNotation: React.FC<TabProps> = ({
 
   return (
     <div className="font-mono text-base relative w-full">
-      <svg
-        width="100%"
-        height="auto"
-        viewBox={`0 0 ${viewBoxWidth} ${totalHeight}`}
-        preserveAspectRatio="xMinYMin meet"
-      >
+        {!hideSvgWrapper ? (
+      <svg width="100%"
+      height="auto"
+      viewBox={`0 0 ${viewBoxWidth} ${totalHeight}`}
+      preserveAspectRatio="xMinYMin meet">
         <defs>
           <marker
             id="arrowhead"
@@ -245,6 +246,7 @@ export const TabNotation: React.FC<TabProps> = ({
           })
         )}
       </svg>
+  ) : null}
       {/* Toggle Bend button appears when a note is selected in edit mode */}
       {editMode && selectedNote && (
         <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={handleToggleBend}>
