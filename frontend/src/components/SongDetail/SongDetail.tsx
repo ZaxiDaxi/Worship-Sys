@@ -135,6 +135,7 @@ export default function SongDetail() {
         setEditedLyrics(data.lyrics);
         setPast([]);
         setFuture([]);
+        setFlowNotes(data.flow_notes || ""); 
 
         if (data.guitar_tab_id) {
           AxiosInstance.get(`guitartabs/${data.guitar_tab_id}/`)
@@ -201,11 +202,12 @@ export default function SongDetail() {
         time_signature: song.time_signature,
         lyrics: finalLyrics,
         guitar_tab_id: attachedTab ? attachedTab.id : null,
-        flow_notes: flowNotes,  
+        flow_notes: flowNotes,    
       });
       setSong(res.data);
       setEditedTitle(res.data.title);
       setEditedLyrics(res.data.lyrics);
+      setFlowNotes(res.data.flow_notes || "");
       setPast([]);
       setFuture([]);
       setToast({ message: "New version saved successfully", type: "success" });
@@ -231,9 +233,11 @@ export default function SongDetail() {
         time_signature: song.time_signature,
         lyrics: finalLyrics,
         guitar_tab_id: attachedTab ? attachedTab.id : null,
+        flow_notes: flowNotes,     
       });
       setSong(res.data);
       setEditedLyrics(res.data.lyrics);
+      setFlowNotes(res.data.flow_notes || ""); 
       setPast([]);
       setFuture([]);
       setToast({ message: "Song updated successfully", type: "success" });
