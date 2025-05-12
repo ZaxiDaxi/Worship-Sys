@@ -479,9 +479,16 @@ export default function SongDetail() {
                 />
               </div>
             ) : (
-              <p className="text-gray-800  my-4 whitespace-pre-wrap text-sm md:text-lg">
-                {flowNotes}
-              </p>
+                <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 my-4">
+    <p className="text-gray-900 whitespace-pre-wrap text-base md:text-lg  font-khmer             /* Khmer font */
+      text-gray-900
+      text-lg md:text-xl     /* bigger on desktop */
+      leading-relaxed        /* taller line-height for Khmer glyphs */
+      tracking-wide          /* a touch more letter-spacing */
+      whitespace-pre-wrap">
+      {flowNotes}
+    </p>
+  </div>
             )}
 
             {/* ▼ 2. Label AFTER the content */}
