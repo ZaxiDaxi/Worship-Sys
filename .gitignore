@@ -1,1 +1,47 @@
 .qodo
+
+# Node
+frontend/node_modules/
+# Python venv
+myenv/
+backend/myenv/
+# Django dev DB
+backend/db.sqlite3
+# Uploaded media
+backend/media/
+# Caches
+__pycache__/
+.pytest_cache/
+.cache/
+# macOS junk
+.DS_Store
+__MACOSX/
+# Builds
+/dist/
+/build/
+*.log
+*.tmp
+.eslintcache
+
+# Node
+frontend/node_modules/
+# Python venv
+myenv/
+backend/myenv/
+# Django dev DB
+backend/db.sqlite3
+# Uploaded media
+backend/media/
+# Caches
+__pycache__/
+.pytest_cache/
+.cache/
+# macOS junk
+.DS_Store
+__MACOSX/
+# Builds
+/dist/
+/build/
+*.log
+*.tmp
+.eslintcache
