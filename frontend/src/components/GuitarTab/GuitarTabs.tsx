@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { Edit, Trash2, Search } from "lucide-react";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header";

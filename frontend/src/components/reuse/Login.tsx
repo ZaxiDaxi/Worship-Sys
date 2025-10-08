@@ -1,7 +1,7 @@
 // pages/Login.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import LoginIllustration from "@/components/img/login.jpg";
 
 const Login: React.FC = () => {

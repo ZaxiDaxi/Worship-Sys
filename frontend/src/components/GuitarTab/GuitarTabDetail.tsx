@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TabNotation } from "@/components/GuitarTab/TabNotation";

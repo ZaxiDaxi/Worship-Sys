@@ -1,5 +1,3 @@
-// SongCard.tsx
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Edit, Trash2 } from "lucide-react";

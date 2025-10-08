@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();

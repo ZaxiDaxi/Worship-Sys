@@ -1,4 +1,3 @@
-// src/components/reuse/ChordLine.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { IconButton } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";

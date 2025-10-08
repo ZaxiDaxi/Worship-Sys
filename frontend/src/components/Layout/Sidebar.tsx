@@ -1,4 +1,3 @@
-// Sidebar.tsx
 import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";

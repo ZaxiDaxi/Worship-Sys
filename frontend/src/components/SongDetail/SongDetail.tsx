@@ -1,7 +1,6 @@
-// SongDetail.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,7 +14,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import EditToolbar from "@/components/reuse/EditToolbar";
 import ChordLine from "../reuse/ChordLine";
-import GreenButton from "../reuse/GreenButton"; // ✅ reusable button
+import GreenButton from "../reuse/GreenButton"; // 
 import { isMinorKey } from "../reuse/songUtils";
 
 interface Chord {

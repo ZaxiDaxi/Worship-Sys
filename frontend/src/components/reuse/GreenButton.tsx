@@ -1,12 +1,8 @@
-/**
- * A reusable green “Create” button that forwards all MUI Button props.
- */
 import React from "react";
 import Button, { ButtonProps } from "@mui/material/Button";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 export interface GreenButtonProps extends ButtonProps {
-  /** Text rendered inside the button (defaults to "Create"). */
   label?: string;
 }
 

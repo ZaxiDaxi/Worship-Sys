@@ -1,11 +1,14 @@
-// Index.tsx
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { Header } from "@/components/Layout/Header";
 import { StatCard } from "@/components/Overview/StatCard";
 import { ProfileSection } from "@/components/Overview/ProfileSection";
 import { PersonalDetails } from "@/components/Overview/PersonalDetails";
-import AxiosInstance from "@/components/axios"; // Use your custom Axios instance
+import AxiosInstance from "@/components/axios/axios"; 
+import PianoIcon from '@mui/icons-material/Piano';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import GroupsIcon from '@mui/icons-material/Groups';
+
 
 const Index = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -59,17 +62,17 @@ const Index = () => {
 
   const stats = [
     {
-      icon: "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/46fe4f3371bc81444841a9f3bc506750f244c3d35e0047f38d56f60b7bd74850?width=100",
+      icon: <GroupsIcon fontSize="large"/>,
       title: "Team",
       value: profile.team || "N/A",
     },
     {
-      icon: "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/cc6dbc54f4d515dff6e2d310064b3a58b09b2452735fa2601ed8cdf7a62a08f6?width=100",
+      icon: <AccountBoxIcon fontSize="large"/>,
       title: "Attendance",
       value: profile.attendance || "N/A",
     },
     {
-      icon: "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/94fcdcdabbd7f011a4182944a5b0f9a10c3c7e10f24a157a9e81314bbdd69d26?width=100",
+      icon: <PianoIcon fontSize="large"/>,
       title: "Instrument",
       value: profile.instrument || "N/A",
     },

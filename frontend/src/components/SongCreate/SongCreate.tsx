@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import Toast from "@/components/ui/toast";
 import { Header } from "@/components/Layout/Header";
-import Button from "@mui/material/Button";          // still needed for “Delete Line”
+import Button from "@mui/material/Button";          
 import ChordLine, { LyricLine } from "@/components/reuse/ChordLine";
-import EditToolbar from "@/components/reuse/EditToolbar";
-import GreenButton from "@/components/reuse/GreenButton";  // ← reusable button
+import GreenButton from "@/components/reuse/GreenButton";  
 
 const SongCreate: React.FC = () => {
   const [title, setTitle] = useState("");

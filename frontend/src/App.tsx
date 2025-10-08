@@ -17,10 +17,8 @@ import Login from "./components/reuse/Login";
 import NotFound from "./components/reuse/NotFound";
 import ProfilePictureCropper from "./components/reuse/ProfilePictureCropper";
 
-// Sidebar (make sure this import path points to your actual Sidebar.tsx)
+// Sidebar
 import { Sidebar } from "./components/Layout/Sidebar";
-
-
 
 
 /** 
@@ -62,7 +60,6 @@ function MainLayout() {
     </div>
   );
 }
-
 
 
 /**

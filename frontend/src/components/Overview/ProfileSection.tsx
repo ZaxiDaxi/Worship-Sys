@@ -1,4 +1,5 @@
 import React from "react";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 interface ProfileSectionProps {
   profile: any;
@@ -13,7 +14,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
   // If profile.profile_picture isn't available, fallback to a default URL.
   const imageUrl =
     profile.profile_picture ||
-    "https://cdn.builder.io/api/v1/image/assets/d05f7b0812fd4640ab4ab69bdae91b88/ae978e8461ea892e399e2263eaf02894a8a92d0765ce3c927168e7403727ddc0";
+      <AccountCircleIcon/>
 
   return (
     <div

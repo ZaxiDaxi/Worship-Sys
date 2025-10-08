@@ -1,5 +1,3 @@
-// songUtils.ts
-
 export function splitLineByWordsWithIndex(text: string) {
     const regex = /(\S+|\s+)/g;
     const tokens: Array<{ token: string; start: number }> = [];

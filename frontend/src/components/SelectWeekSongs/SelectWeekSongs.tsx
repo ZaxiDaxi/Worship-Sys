@@ -1,7 +1,6 @@
-// src/components/SongCreate/SelectWeekSongs.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AxiosInstance from "@/components/axios";
+import AxiosInstance from "@/components/axios/axios";
 import { Sidebar } from "@/components/Layout/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchBar from "@/components/reuse/SearchBar";
