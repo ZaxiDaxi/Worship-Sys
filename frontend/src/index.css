@@ -1,4 +1,6 @@
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -88,7 +90,15 @@
   }
 }
 
+@layer base {
+  * {
+    @apply border-border;
+  }
 
+  body {
+    @apply bg-background text-foreground;
+  }
+}
 
 /* global.css */
 
