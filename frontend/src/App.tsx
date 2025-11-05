@@ -93,6 +93,7 @@ const App = () => (
         
         <Route path="/songs" element={<Songs />} />
         <Route path="/songs/:id" element={<SongDetail />} />
+        <Route path="/songs/:id/edit" element={<SongDetail defaultEdit />} />
         <Route path="/week-songs" element={<WeekSongs />} />
         <Route path="/select-week-songs" element={<SelectWeekSongs />} />
         <Route path="/create-song" element={<SongCreate />} />

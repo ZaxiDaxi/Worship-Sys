@@ -1,4 +1,3 @@
-# serializers.py
 from rest_framework import serializers
 from guitartabs.models import GuitarTab          # update if GuitarTab lives elsewhere
 from .models import Song, SongFlow
