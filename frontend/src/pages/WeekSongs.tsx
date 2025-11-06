@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Sidebar } from "@/components/Layout/Sidebar";
-import { Header } from "@/components/Layout/Header";
+import { Sidebar } from "@/features/Layout/Sidebar";
+import { Header } from "@/features/Layout/Header";
 import { Plus, Trash2 } from "lucide-react";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IconButton } from "@mui/material";
@@ -69,7 +69,7 @@ const WeekSongs = () => {
                       <div className="text-sm text-gray-500 mt-1 flex gap-2">
                         <span>Key: {song.key}</span>
                         <span>Tempo: {song.tempo}</span>
-                        <span>Time: {song.time_signature}</span>
+                        
                       </div>
                     </div>
                   </div>

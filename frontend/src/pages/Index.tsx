@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Sidebar } from "@/components/Layout/Sidebar";
-import { Header } from "@/components/Layout/Header";
-import { StatCard } from "@/components/Overview/StatCard";
-import { ProfileSection } from "@/components/Overview/ProfileSection";
-import { PersonalDetails } from "@/components/Overview/PersonalDetails";
-import AxiosInstance from "@/components/axios/axios"; 
+import { Sidebar } from "@/features/Layout/Sidebar";
+import { Header } from "@/features/Layout/Header";
+import { StatCard } from "@/features/Overview/StatCard";
+import { ProfileSection } from "@/features/Overview/ProfileSection";
+import { PersonalDetails } from "@/features/Overview/PersonalDetails";
+import AxiosInstance from "@/api/axios"; 
 import PianoIcon from '@mui/icons-material/Piano';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import GroupsIcon from '@mui/icons-material/Groups';
